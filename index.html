@@ -288,7 +288,7 @@
 </div>
 
 <script>
-    // Motor 3D amb consistència d'il·luminació absoluta (materials fixos per mantenir la identitat visual dels cubs)
+    // Motor 3D amb MeshBasicMaterial i arestes negres d'alta visibilitat (estil clàssic impecable)
     function render3DBlockFigure(containerElement, structureType, rotX, rotY, rotZ, isMirrored) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
@@ -307,26 +307,19 @@
         renderer.setPixelRatio(window.devicePixelRatio > 1 ? window.devicePixelRatio : 1);
         containerElement.appendChild(renderer.domElement);
 
-        // Il·luminació uniforme de Three.js perquè depengui de la orientació real de les cares i no de la posició global
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(5, 10, 7);
-        scene.add(directionalLight);
-
         const group = new THREE.Group();
         
-        // Definim materials físics amb ombres pròpies per mantenir el mateix patró de grisos a tot arreu
-        const matTop    = new THREE.MeshLambertMaterial({ color: 0xf1f5f9 }); // Cares superiors (molt clars)
-        const matSide   = new THREE.MeshLambertMaterial({ color: 0x94a3b8 }); // Cares laterals (gris mitjà)
-        const matBottom = new THREE.MeshLambertMaterial({ color: 0x334155 }); // Cares inferiors (gris fosc)
+        // Utilitzem MeshBasicMaterial amb tons de gris sòlids i diferenciats (sense dependència de llums que puguin blanquejar)
+        const matTop    = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 }); // Gris molt clar superior
+        const matSide   = new THREE.MeshBasicMaterial({ color: 0x94a3b8 }); // Gris mitjà lateral
+        const matBottom = new THREE.MeshBasicMaterial({ color: 0x475569 }); // Gris fosc inferior
 
         // Matriu de 6 cares per a cada cub: [Dret, Esquerra, Dalt, Baix, Davant, Darrere]
         const cubeMaterials = [matSide, matSide, matTop, matBottom, matSide, matSide];
         
         const cubeGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
         const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
+        // Arestes negres gruixudes i definides per a una nitidesa perfecta
         const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
 
         let blockPositions = [];
@@ -365,7 +358,7 @@
 
         scene.add(group);
 
-        // Centrat automàtic perfecte amb Box3
+        // Centrat automàtic mil·límetric amb Box3
         const box = new THREE.Box3().setFromObject(group);
         const center = box.getCenter(new THREE.Vector3());
         group.position.sub(center);

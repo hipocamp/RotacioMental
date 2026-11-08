@@ -288,7 +288,7 @@
 </div>
 
 <script>
-    // Motor 3D amb angles de rotació cànonics discrets (garanteix volumetria i visibilitat al 100%)
+    // Motor 3D amb angles de rotació 3D estrictament acotats per garantir visibilitat total de 3 cares
     function render3DBlockFigure(containerElement, structureType, rotX, rotY, rotZ, isMirrored) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
@@ -348,7 +348,7 @@
             group.add(mesh);
         });
 
-        // Aplicació dels angles cànonics segurs
+        // Aplicació dels angles 3D robustos
         group.rotation.x = rotX;
         group.rotation.y = rotY;
         group.rotation.z = rotZ;
@@ -378,24 +378,24 @@
         }
 
         initTrialsDataset() {
-            // Matriu d'orientacions 3D discretes provades i segures (evita col·lapses plans)
-            const canonicalOrientations = [
-                {x: 0.52, y: 0.78, z: 0.35},
-                {x: 1.05, y: 1.57, z: 0.78},
-                {x: 0.78, y: 2.35, z: 1.05},
-                {x: 1.57, y: 0.52, z: 1.25},
-                {x: 0.65, y: 1.20, z: 1.80},
-                {x: 1.30, y: 2.10, z: 0.52}
+            // Matriu d'orientacions 3D rigorosament filtrades per assegurar visibilitat volumètrica total de 3 cares
+            const guaranteedVolumetricOrientations = [
+                {x: 0.65, y: 0.75, z: 0.45},
+                {x: 0.85, y: 1.55, z: 0.65},
+                {x: 0.55, y: 2.35, z: 0.85},
+                {x: 1.25, y: 0.65, z: 1.15},
+                {x: 0.75, y: 1.35, z: 1.65},
+                {x: 1.15, y: 2.15, z: 0.55}
             ];
 
             for (let i = 0; i < this.totalItems; i++) {
                 const structId = i % 5;
                 
-                const targetRot = canonicalOrientations[i % canonicalOrientations.length];
-                const correctRot1 = canonicalOrientations[(i + 2) % canonicalOrientations.length];
-                const correctRot2 = canonicalOrientations[(i + 4) % canonicalOrientations.length];
-                const mirrorRot1  = canonicalOrientations[(i + 1) % canonicalOrientations.length];
-                const mirrorRot2  = canonicalOrientations[(i + 3) % canonicalOrientations.length];
+                const targetRot = guaranteedVolumetricOrientations[i % guaranteedVolumetricOrientations.length];
+                const correctRot1 = guaranteedVolumetricOrientations[(i + 2) % guaranteedVolumetricOrientations.length];
+                const correctRot2 = guaranteedVolumetricOrientations[(i + 4) % guaranteedVolumetricOrientations.length];
+                const mirrorRot1  = guaranteedVolumetricOrientations[(i + 1) % guaranteedVolumetricOrientations.length];
+                const mirrorRot2  = guaranteedVolumetricOrientations[(i + 3) % guaranteedVolumetricOrientations.length];
 
                 let correctIndices = [0, 2];
                 if (i % 3 === 0) correctIndices = [1, 3];

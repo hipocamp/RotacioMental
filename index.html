@@ -288,8 +288,8 @@
 </div>
 
 <script>
-    // Motor 3D amb centratge automàtic perfecte (mitjançant Box3) i volumetria garantida
-    function render3DBlockFigure(containerElement, structureType, rotY, isMirrored) {
+    // Motor 3D amb orientacions tridimensionals pures i centratge automàtic (Box3)
+    function render3DBlockFigure(containerElement, structureType, rotX, rotY, rotZ, isMirrored) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
         
@@ -353,17 +353,17 @@
             group.add(mesh);
         });
 
-        // ROTACIÓ ISOMÈTRICA FIJA DE TRES QUARTS (Garantix que sempre es veuen cares múltiples)
-        group.rotation.x = 0.6;
-        group.rotation.z = 0.5;
+        // APLICACIÓ DE LA ROTACIÓ TRIDIMENSIONAL PURA (X, Y, Z)
+        group.rotation.x = rotX;
         group.rotation.y = rotY;
+        group.rotation.z = rotZ;
 
         scene.add(group);
 
-        // CENTRAT AUTOMÀTIC MITJANÇANT BOX3 (Evita qualsevol desplaçament o tall visual)
+        // CENTRAT AUTOMÀTIC ABSOLUT AMB BOX3 (Evita qualsevol desplaçament lateral o tall)
         const box = new THREE.Box3().setFromObject(group);
         const center = box.getCenter(new THREE.Vector3());
-        group.position.sub(center); // Mou el centre exacte al punt (0,0,0)
+        group.position.sub(center);
 
         renderer.render(scene, camera);
     }
@@ -383,18 +383,26 @@
         }
 
         initTrialsDataset() {
-            const rotationAngles = [0.0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2, Math.PI / 4, (3 * Math.PI) / 4, (5 * Math.PI) / 4];
+            // Matriu d'orientacions 3D estrictament triades perquè SEMPRE es vegin múltiples cares i volum
+            const volumetricOrientations = [
+                {x: 0.6, y: 0.8, z: 0.4},
+                {x: 1.1, y: 1.5, z: 0.7},
+                {x: 0.4, y: 2.2, z: 1.1},
+                {x: 1.5, y: 0.5, z: 1.3},
+                {x: 0.9, y: 1.2, z: 2.1},
+                {x: 1.3, y: 2.0, z: 0.6}
+            ];
 
             for (let i = 0; i < this.totalItems; i++) {
                 const structId = i % 5;
                 
-                const targetRot = rotationAngles[i % rotationAngles.length];
-                const correctRot1 = rotationAngles[(i + 2) % rotationAngles.length];
-                const correctRot2 = rotationAngles[(i + 4) % rotationAngles.length];
-                const mirrorRot1  = rotationAngles[(i + 1) % rotationAngles.length];
-                const mirrorRot2  = rotationAngles[(i + 3) % rotationAngles.length];
+                const targetRot = volumetricOrientations[i % volumetricOrientations.length];
+                const correctRot1 = volumetricOrientations[(i + 2) % volumetricOrientations.length];
+                const correctRot2 = volumetricOrientations[(i + 4) % volumetricOrientations.length];
+                const mirrorRot1  = volumetricOrientations[(i + 1) % volumetricOrientations.length];
+                const mirrorRot2  = volumetricOrientations[(i + 3) % volumetricOrientations.length];
 
-                // Definim de forma fixa i estricta que NOMÉS 2 opcions són correctes
+                // Exactament 2 opcions correctes i 2 incorrectes (mirall) per ítem
                 let correctIndices = [0, 2];
                 if (i % 3 === 0) correctIndices = [1, 3];
                 if (i % 5 === 0) correctIndices = [0, 3];
@@ -407,18 +415,20 @@
                 for (let opt = 0; opt < 4; opt++) {
                     if (correctIndices.includes(opt)) {
                         const rot = (cCount === 0) ? correctRot1 : correctRot2;
-                        optionsArr.push({ struct: structId, rotY: rot, mirrored: false });
+                        optionsArr.push({ struct: structId, rotX: rot.x, rotY: rot.y, rotZ: rot.z, mirrored: false });
                         cCount++;
                     } else {
                         const rot = (mCount === 0) ? mirrorRot1 : mirrorRot2;
-                        optionsArr.push({ struct: structId, rotY: rot, mirrored: true });
+                        optionsArr.push({ struct: structId, rotX: rot.x, rotY: rot.y, rotZ: rot.z, mirrored: true });
                         mCount++;
                     }
                 }
 
                 this.trialsData.push({
                     targetStruct: structId,
-                    targetRotY: targetRot,
+                    targetRotX: targetRot.x,
+                    targetRotY: targetRot.y,
+                    targetRotZ: targetRot.z,
                     options: optionsArr,
                     correct: correctIndices
                 });
@@ -453,7 +463,7 @@
             const trial = this.trialsData[this.currentTrialIndex];
 
             const targetContainer = document.getElementById('target-canvas-box');
-            render3DBlockFigure(targetContainer, trial.targetStruct, trial.targetRotY, false);
+            render3DBlockFigure(targetContainer, trial.targetStruct, trial.targetRotX, trial.targetRotY, trial.targetRotZ, false);
 
             const container = document.getElementById('options-container');
             container.innerHTML = '';
@@ -469,7 +479,7 @@
                 container.appendChild(card);
 
                 const optContainer = document.getElementById(`opt-canvas-${optIdx}`);
-                render3DBlockFigure(optContainer, opt.struct, opt.rotY, opt.mirrored);
+                render3DBlockFigure(optContainer, opt.struct, opt.rotX, opt.rotY, opt.rotZ, opt.mirrored);
             });
 
             this.trialStartTime = performance.now();

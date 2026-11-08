@@ -288,7 +288,7 @@
 </div>
 
 <script>
-    // Motor 3D amb rotacions 3D pures anti-aplanament (garanteix volumetria en X, Y i Z conjuntament)
+    // Motor 3D amb matrius de rotació estrictament obliqües (Impediu absolutament qualsevol aplanament 2D)
     function render3DBlockFigure(containerElement, structureType, rotObj, isMirrored) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
@@ -348,7 +348,7 @@
             group.add(mesh);
         });
 
-        // APLICACIÓ STRICTA DE ROTACIÓ TRIDIMENSIONAL (X, Y, Z concurrents per evitar cap aplanament 2D)
+        // APLICACIÓ DE LA ROTACIÓ TRIDIMENSIONAL RIGOROSA
         group.rotation.x = rotObj.x;
         group.rotation.y = rotObj.y;
         group.rotation.z = rotObj.z;
@@ -378,26 +378,24 @@
         }
 
         initTrialsDataset() {
-            // Matriu d'orientacions 3D 100% volumètriques (cap angle pla possible)
-            const volumetricRotations = [
-                {x: 0.55, y: 0.85, z: 0.40},
-                {x: 1.15, y: 1.45, z: 0.75},
-                {x: 0.75, y: 2.25, z: 1.10},
-                {x: 1.45, y: 0.55, z: 1.30},
-                {x: 0.85, y: 1.25, z: 1.95},
-                {x: 1.25, y: 2.05, z: 0.60},
-                {x: 0.65, y: 1.75, z: 0.95},
-                {x: 1.35, y: 0.95, z: 0.50}
+            // Matriu d'orientacions 3D 100% obliqües (angles francs que asseguren volum i finestres visuals clares)
+            const strict3DRotations = [
+                {x: 0.70, y: 0.90, z: 0.50},
+                {x: 1.10, y: 1.60, z: 0.80},
+                {x: 0.80, y: 2.40, z: 1.15},
+                {x: 1.50, y: 0.70, z: 1.30},
+                {x: 0.90, y: 1.30, z: 1.85},
+                {x: 1.20, y: 2.10, z: 0.70}
             ];
 
             for (let i = 0; i < this.totalItems; i++) {
                 const structId = i % 5;
                 
-                const targetRot = volumetricRotations[i % volumetricRotations.length];
-                const correctRot1 = volumetricRotations[(i + 2) % volumetricRotations.length];
-                const correctRot2 = volumetricRotations[(i + 4) % volumetricRotations.length];
-                const mirrorRot1  = volumetricRotations[(i + 1) % volumetricRotations.length];
-                const mirrorRot2  = volumetricRotations[(i + 3) % volumetricRotations.length];
+                const targetRot = strict3DRotations[i % strict3DRotations.length];
+                const correctRot1 = strict3DRotations[(i + 2) % strict3DRotations.length];
+                const correctRot2 = strict3DRotations[(i + 4) % strict3DRotations.length];
+                const mirrorRot1  = strict3DRotations[(i + 1) % strict3DRotations.length];
+                const mirrorRot2  = strict3DRotations[(i + 3) % strict3DRotations.length];
 
                 let correctIndices = [0, 2];
                 if (i % 3 === 0) correctIndices = [1, 3];

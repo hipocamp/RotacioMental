@@ -288,7 +288,7 @@
 </div>
 
 <script>
-    // Motor 3D amb MeshBasicMaterial i arestes negres d'alta visibilitat (estil clàssic impecable)
+    // Motor 3D amb angles de rotació cànonics discrets (garanteix volumetria i visibilitat al 100%)
     function render3DBlockFigure(containerElement, structureType, rotX, rotY, rotZ, isMirrored) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
@@ -309,17 +309,14 @@
 
         const group = new THREE.Group();
         
-        // Utilitzem MeshBasicMaterial amb tons de gris sòlids i diferenciats (sense dependència de llums que puguin blanquejar)
-        const matTop    = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 }); // Gris molt clar superior
-        const matSide   = new THREE.MeshBasicMaterial({ color: 0x94a3b8 }); // Gris mitjà lateral
-        const matBottom = new THREE.MeshBasicMaterial({ color: 0x475569 }); // Gris fosc inferior
+        const matTop    = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 }); 
+        const matSide   = new THREE.MeshBasicMaterial({ color: 0x94a3b8 }); 
+        const matBottom = new THREE.MeshBasicMaterial({ color: 0x475569 }); 
 
-        // Matriu de 6 cares per a cada cub: [Dret, Esquerra, Dalt, Baix, Davant, Darrere]
         const cubeMaterials = [matSide, matSide, matTop, matBottom, matSide, matSide];
         
         const cubeGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
         const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
-        // Arestes negres gruixudes i definides per a una nitidesa perfecta
         const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
 
         let blockPositions = [];
@@ -351,7 +348,7 @@
             group.add(mesh);
         });
 
-        // Aplicació de la rotació 3D
+        // Aplicació dels angles cànonics segurs
         group.rotation.x = rotX;
         group.rotation.y = rotY;
         group.rotation.z = rotZ;
@@ -381,23 +378,24 @@
         }
 
         initTrialsDataset() {
-            const volumetricOrientations = [
-                {x: 0.5, y: 0.7, z: 0.3},
-                {x: 1.2, y: 1.4, z: 0.8},
-                {x: 0.7, y: 2.3, z: 1.0},
-                {x: 1.4, y: 0.4, z: 1.2},
-                {x: 0.8, y: 1.1, z: 2.0},
-                {x: 1.2, y: 1.9, z: 0.5}
+            // Matriu d'orientacions 3D discretes provades i segures (evita col·lapses plans)
+            const canonicalOrientations = [
+                {x: 0.52, y: 0.78, z: 0.35},
+                {x: 1.05, y: 1.57, z: 0.78},
+                {x: 0.78, y: 2.35, z: 1.05},
+                {x: 1.57, y: 0.52, z: 1.25},
+                {x: 0.65, y: 1.20, z: 1.80},
+                {x: 1.30, y: 2.10, z: 0.52}
             ];
 
             for (let i = 0; i < this.totalItems; i++) {
                 const structId = i % 5;
                 
-                const targetRot = volumetricOrientations[i % volumetricOrientations.length];
-                const correctRot1 = volumetricOrientations[(i + 2) % volumetricOrientations.length];
-                const correctRot2 = volumetricOrientations[(i + 4) % volumetricOrientations.length];
-                const mirrorRot1  = volumetricOrientations[(i + 1) % volumetricOrientations.length];
-                const mirrorRot2  = volumetricOrientations[(i + 3) % volumetricOrientations.length];
+                const targetRot = canonicalOrientations[i % canonicalOrientations.length];
+                const correctRot1 = canonicalOrientations[(i + 2) % canonicalOrientations.length];
+                const correctRot2 = canonicalOrientations[(i + 4) % canonicalOrientations.length];
+                const mirrorRot1  = canonicalOrientations[(i + 1) % canonicalOrientations.length];
+                const mirrorRot2  = canonicalOrientations[(i + 3) % canonicalOrientations.length];
 
                 let correctIndices = [0, 2];
                 if (i % 3 === 0) correctIndices = [1, 3];

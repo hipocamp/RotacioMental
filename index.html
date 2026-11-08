@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mental Rotations Test (MRT - Vandenberg & Kuse)</title>
+    <title>Mental Rotations Test (MRT 3D) - Vandenberg & Kuse</title>
+    <!-- Carreguem Three.js per a gràfics 3D reals -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
             --primary: #1e293b;
@@ -110,9 +112,9 @@
         .target-box {
             text-align: center;
             background: #f8fafc;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 2px dashed #94a3b8;
         }
 
@@ -121,21 +123,21 @@
             font-weight: 700;
             color: #475569;
             letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .option-card {
             background: #fff;
             border: 2px solid var(--border);
             border-radius: 10px;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -160,20 +162,17 @@
             font-size: 12px;
             font-weight: bold;
             color: #64748b;
+            z-index: 10;
         }
 
-        .figure-box {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #e2e8f0;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 4px;
-            color: #1e293b;
-            margin: 10px 0;
-            border: 2px solid #94a3b8;
+        .canvas-container {
+            width: 100%;
+            height: 120px;
+        }
+
+        .target-canvas-container {
+            width: 100%;
+            height: 110px;
         }
 
         .results-table {
@@ -201,7 +200,7 @@
 <div class="container">
     <!-- FASE 1: FORMULARI DE REGISTRE -->
     <div id="view-form">
-        <h2>Mental Rotations Test (MRT)</h2>
+        <h2>Mental Rotations Test (MRT 3D)</h2>
         <p class="subtitle">Rèplica experimental basada en Vandenberg & Kuse (1978)</p>
         
         <form id="participant-form">
@@ -222,255 +221,3 @@
                     <option value="Dretà">Dretà/na</option>
                     <option value="Esquerrà">Esquerrà/ana</option>
                     <option value="Ambidextre">Ambidextre/a</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="gender">Sexe:</label>
-                <select id="gender" required>
-                    <option value="">Selecciona...</option>
-                    <option value="Masculí">Masculí</option>
-                    <option value="Femení">Femení</option>
-                    <option value="No respon">Prefereixo no respondre</option>
-                </select>
-            </div>
-
-            <button type="submit">Iniciar Prova</button>
-        </form>
-    </div>
-
-    <!-- FASE 2: LA TASCA DE ROTACIÓ -->
-    <div id="view-task" class="hidden">
-        <div class="task-header">
-            <span>Ítem <span id="current-trial">1</span> / <span id="total-trials">20</span></span>
-            <span style="color: var(--secondary);">Selecciona les 2 figures correctes</span>
-        </div>
-
-        <div class="target-box">
-            <div class="target-label">FIGURA CRITÈRIA (OBJECTIU)</div>
-            <div class="figure-box" id="target-shape">■-▲-●-★</div>
-        </div>
-
-        <p style="font-size: 14px; text-align: center; margin-bottom: 15px; color: #475569;">
-            Observa les 4 alternatives. Clica exactament sobre les <strong>2 figures</strong> que representen la mateixa estructura tridimensional girada (ignora les reflectides en mirall).
-        </p>
-
-        <div class="options-grid" id="options-container"></div>
-
-        <button id="btn-confirm" disabled onclick="app.submitTrial()">Confirmar Resposta</button>
-    </div>
-
-    <!-- FASE 3: RESULTATS -->
-    <div id="view-results" class="hidden">
-        <h2>Resultats de la Prova</h2>
-        <p id="participant-summary" style="text-align: center; font-weight: 600; color: #475569;"></p>
-
-        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-            <span style="font-size: 18px; font-weight: bold; color: var(--secondary);" id="final-score-text">Puntuació total: 0 / 20</span>
-        </div>
-
-        <div style="max-height: 250px; overflow-y: auto;">
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Ítem</th>
-                        <th>Temps (s)</th>
-                        <th>Encerts (0-2)</th>
-                        <th>Estat</th>
-                    </tr>
-                </thead>
-                <tbody id="results-tbody"></tbody>
-            </table>
-        </div>
-
-        <br>
-        <button onclick="app.downloadJSON()">Descarregar Dades Analítiques (JSON)</button>
-    </div>
-</div>
-
-<script>
-    class MentalRotationAppMRT {
-        constructor() {
-            this.participant = {};
-            this.totalItems = 20;
-            this.currentTrialIndex = 0;
-            this.selectedOptions = [];
-            this.trialStartTime = 0;
-            this.results = [];
-            this.trialsData = [];
-
-            this.generateTrials();
-            this.initListeners();
-        }
-
-        generateTrials() {
-            const figurePool = [
-                "■-▲-●-★", "◆-▼-★-▲", "●-■-◆-▼", "★-▲-■-◆", 
-                "▼-◆-▲-●", "▲-★-▼-■", "◆-●-■-★", "■-▼-▲-◆"
-            ];
-
-            for (let i = 0; i < this.totalItems; i++) {
-                const baseFig = figurePool[i % figurePool.length];
-                // Inversió lògica per simular l'efecte mirall en les opcions incorrectes
-                const mirroredFig = baseFig.split('-').reverse().join('-');
-                const rotatedFig = baseFig.split('-').slice(1).join('-') + '-' + baseFig.split('-')[0];
-
-                let correctIndices = [0, 2];
-                if (i % 3 === 0) correctIndices = [1, 3];
-                if (i % 5 === 0) correctIndices = [0, 3];
-                if (i % 7 === 0) correctIndices = [1, 2];
-
-                let optionsArr = [];
-                for (let opt = 0; opt < 4; opt++) {
-                    if (correctIndices.includes(opt)) {
-                        optionsArr.push(opt % 2 === 0 ? baseFig : rotatedFig);
-                    } else {
-                        optionsArr.push(mirroredFig);
-                    }
-                }
-
-                this.trialsData.push({
-                    target: baseFig,
-                    options: optionsArr,
-                    correct: correctIndices
-                });
-            }
-        }
-
-        initListeners() {
-            document.getElementById('participant-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.participant = {
-                    name: document.getElementById('name').value,
-                    dob: document.getElementById('dob').value,
-                    handedness: document.getElementById('handedness').value,
-                    gender: document.getElementById('gender').value
-                };
-                this.startTask();
-            });
-        }
-
-        startTask() {
-            document.getElementById('view-form').classList.add('hidden');
-            document.getElementById('view-task').classList.remove('hidden');
-            document.getElementById('total-trials').textContent = this.totalItems;
-            this.loadTrial();
-        }
-
-        loadTrial() {
-            this.selectedOptions = [];
-            document.getElementById('btn-confirm').disabled = true;
-            document.getElementById('current-trial').textContent = this.currentTrialIndex + 1;
-
-            const trial = this.trialsData[this.currentTrialIndex];
-            document.getElementById('target-shape').textContent = trial.target;
-
-            const container = document.getElementById('options-container');
-            container.innerHTML = '';
-
-            trial.options.forEach((optText, optIdx) => {
-                const card = document.createElement('div');
-                card.className = 'option-card';
-                card.innerHTML = `
-                    <div class="option-id">${optIdx + 1}</div>
-                    <div style="margin-top: 15px; font-family: monospace; font-size: 18px; font-weight: bold; letter-spacing: 3px; color: #334155;">${optText}</div>
-                `;
-                card.onclick = () => this.toggleOption(optIdx, card);
-                container.appendChild(card);
-            });
-
-            this.trialStartTime = performance.now();
-        }
-
-        toggleOption(idx, cardElement) {
-            const indexInSelected = this.selectedOptions.indexOf(idx);
-            
-            if (indexInSelected > -1) {
-                this.selectedOptions.splice(indexInSelected, 1);
-                cardElement.classList.remove('selected');
-            } else {
-                if (this.selectedOptions.length < 2) {
-                    this.selectedOptions.push(idx);
-                    cardElement.classList.add('selected');
-                }
-            }
-
-            document.getElementById('btn-confirm').disabled = this.selectedOptions.length !== 2;
-        }
-
-        submitTrial() {
-            const trialEndTime = performance.now();
-            const reactionTime = (trialEndTime - this.trialStartTime) / 1000;
-            const currentTrial = this.trialsData[this.currentTrialIndex];
-            
-            const sortedSelected = [...this.selectedOptions].sort();
-            const sortedCorrect = [...currentTrial.correct].sort();
-            const isFullyCorrect = JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
-            
-            let partialScore = 0;
-            this.selectedOptions.forEach(opt => {
-                if (currentTrial.correct.includes(opt)) partialScore++;
-            });
-
-            this.results.push({
-                trial: this.currentTrialIndex + 1,
-                reactionTime: reactionTime.toFixed(2),
-                score: isFullyCorrect ? 2 : (partialScore === 1 ? 1 : 0),
-                correct: isFullyCorrect
-            });
-
-            this.currentTrialIndex++;
-            if (this.currentTrialIndex < this.totalItems) {
-                this.loadTrial();
-            } else {
-                this.showResults();
-            }
-        }
-
-        showResults() {
-            document.getElementById('view-task').classList.add('hidden');
-            document.getElementById('view-results').classList.remove('hidden');
-
-            document.getElementById('participant-summary').textContent = 
-                `Participant: ${this.participant.name} | Sexe: ${this.participant.gender} | Lateralitat: ${this.participant.handedness}`;
-
-            const totalFullyCorrect = this.results.filter(r => r.correct).length;
-            document.getElementById('final-score-text').textContent = `Puntuació total (Ítems complets): ${totalFullyCorrect} / ${this.totalItems}`;
-
-            const tbody = document.getElementById('results-tbody');
-            tbody.innerHTML = '';
-
-            this.results.forEach(res => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${res.trial}</td>
-                    <td>${res.reactionTime} s</td>
-                    <td>${res.score} / 2</td>
-                    <td>${res.correct ? '✅ Correcte' : '❌ Incorrecte'}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        downloadJSON() {
-            const dataObj = {
-                participant: this.participant,
-                results: this.results,
-                totalScore: this.results.filter(r => r.correct).length,
-                timestamp: new Date().toISOString()
-            };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `mrt_resultats_${this.participant.name.replace(/\s+/g, '_')}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-    }
-
-    const app = new MentalRotationAppMRT();
-</script>
-
-</body>
-</html>

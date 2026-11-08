@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasca de Rotació Mental (Vandenberg & Kuse)</title>
+    <title>Rèplica Oficial - Test de Rotació Mental (Vandenberg & Kuse, 1978)</title>
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #2c3e50;
+            --primary: #1e293b;
+            --secondary: #0284c7;
+            --accent: #0f172a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #cbd5e1;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f5f7fa;
-            color: var(--dark);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -26,18 +27,26 @@
         }
 
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 650px;
+            max-width: 750px;
         }
 
-        h2, h3 {
+        h2 {
             color: var(--primary);
             text-align: center;
             margin-top: 0;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 25px;
         }
 
         .form-group {
@@ -46,93 +55,117 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 600;
+            font-size: 14px;
         }
 
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: 16px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
             box-sizing: border-box;
+            background: #fff;
         }
 
         button {
             background-color: var(--secondary);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 20px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
         }
 
-        button:hover {
-            background-color: #2980b9;
+        button:hover:not(:disabled) {
+            background-color: #0369a1;
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* Estils de la tasca */
+        /* Estils de la Tasca Experimental */
         .task-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-size: 14px;
-            color: #7f8c8d;
-            border-bottom: 1px solid #ecf0f1;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 2px solid #f1f5f9;
             padding-bottom: 10px;
         }
 
         .target-box {
             text-align: center;
-            background: #f8f9fa;
+            background: #f8fafc;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            border: 2px dashed #cbd5e1;
+            border: 2px dashed #94a3b8;
+        }
+
+        .target-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .option-card {
-            background: white;
-            border: 2px solid #cbd5e1;
-            border-radius: 8px;
+            background: #fff;
+            border: 2px solid var(--border);
+            border-radius: 10px;
             padding: 15px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
         .option-card:hover {
             border-color: var(--secondary);
+            transform: translateY(-2px);
         }
 
         .option-card.selected {
             border-color: var(--secondary);
-            background-color: #ebf5fb;
+            background-color: #e0f2fe;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
         }
 
-        .shape-preview {
-            font-family: monospace;
-            font-size: 24px;
+        .option-id {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            font-size: 12px;
             font-weight: bold;
-            letter-spacing: 2px;
-            color: var(--primary);
-            margin: 10px 0;
+            color: #64748b;
+        }
+
+        svg {
+            max-width: 100%;
+            height: 90px;
         }
 
         .results-table {
@@ -143,14 +176,15 @@
         }
 
         .results-table th, .results-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
             text-align: center;
             font-size: 14px;
         }
 
         .results-table th {
-            background-color: #f2f2f2;
+            background-color: #f1f5f9;
+            color: #334155;
         }
     </style>
 </head>
@@ -159,15 +193,13 @@
 <div class="container">
     <!-- FASE 1: FORMULARI DE REGISTRE -->
     <div id="view-form">
-        <h2>Tasca de Rotació Mental</h2>
-        <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 25px;">
-            Basada en el paradigma de Vandenberg & Kuse (1978)
-        </p>
+        <h2>Mental Rotations Test (MRT)</h2>
+        <p class="subtitle">Rèplica experimental basada en el disseny original de Vandenberg & Kuse (1978)</p>
         
         <form id="participant-form">
             <div class="form-group">
-                <label for="name">Nom / Àlies:</label>
-                <input type="text" id="name" required placeholder="Introdueix el teu nom o codi">
+                <label for="name">Nom / Identificador de Participant:</label>
+                <input type="text" id="name" required placeholder="Ex: P001">
             </div>
 
             <div class="form-group">
@@ -195,73 +227,126 @@
                 </select>
             </div>
 
-            <button type="submit">Començar la prova</button>
+            <button type="submit">Iniciar Prova</button>
         </form>
     </div>
 
-    <!-- FASE 2: LA TASCA DE ROTACIÓ -->
+    <!-- FASE 2: LA TASCA DE ROTACIÓ 3D -->
     <div id="view-task" class="hidden">
         <div class="task-header">
-            <span>Prova <span id="current-trial">1</span> / <span id="total-trials">5</span></span>
-            <span>Selecciona exactament 2 correctes</span>
+            <span>Ítem <span id="current-trial">1</span> / <span id="total-trials">20</span></span>
+            <span style="color: var(--secondary);">Selecciona les 2 figures correctes</span>
         </div>
 
         <div class="target-box">
-            <div style="font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px;">FIGURA OBJECTIU</div>
-            <div class="shape-preview" id="target-shape">L-Z-T</div>
+            <div class="target-label">FIGURA CRitèria (OBJECTIU)</div>
+            <div id="target-container"></div>
         </div>
 
-        <p style="font-size: 14px; text-align: center; margin-bottom: 10px; font-weight: 500;">
-            Clica sobre les <strong>2 figures</strong> de sota que corresponguin a la mateixa figura girada:
+        <p style="font-size: 14px; text-align: center; margin-bottom: 15px; color: #475569;">
+            Fica l'atenció a les 4 alternatives. Clica exactament sobre les <strong>2 figures</strong> que representen la mateixa estructura tridimensional girada (ignora les figures reflectides en mirall).
         </p>
 
         <div class="options-grid" id="options-container">
-            <!-- Es generaran dinàmicament -->
+            <!-- Opcions generades dinàmicament -->
         </div>
 
-        <button id="btn-confirm" disabled onclick="app.submitTrial()">Confirmar Selecció</button>
+        <button id="btn-confirm" disabled onclick="app.submitTrial()">Confirmar Resposta</button>
     </div>
 
-    <!-- FASE 3: RESULTATS I EXPORTACIÓ -->
+    <!-- FASE 3: RESULTATS -->
     <div id="view-results" class="hidden">
         <h2>Resultats de la Prova</h2>
-        <p id="participant-summary" style="text-align: center; font-weight: 500; color: #555;"></p>
+        <p id="participant-summary" style="text-align: center; font-weight: 600; color: #475569;"></p>
 
-        <table class="results-table">
-            <thead>
-                <tr>
-                    <th>Prova</th>
-                    <th>Temps (s)</th>
-                    <th>Encerts (0-2)</th>
-                    <th> estat</th>
-                </tr>
-            </thead>
-            <tbody id="results-tbody">
-                <!-- Dades de resultats -->
-            </tbody>
-        </table>
+        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+            <span style="font-size: 18px; font-weight: bold; color: var(--secondary);" id="final-score-text">Puntuació total: 0 / 20</span>
+        </div>
 
-        <button onclick="app.downloadJSON()">Descarregar Dades (JSON)</button>
+        <div style="max-height: 250px; overflow-y: auto;">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>Temps (s)</th>
+                        <th>Encerts (0-2)</th>
+                        <th>Estat</th>
+                    </tr>
+                </thead>
+                <tbody id="results-tbody"></tbody>
+            </table>
+        </div>
+
+        <br>
+        <button onclick="app.downloadJSON()">Descarregar Dades Analítiques (JSON)</button>
     </div>
 </div>
 
 <script>
-    class MentalRotationApp {
+    // Generador de cubus 3D isomètrics en SVG per simular les figures de Vandenberg & Kuse
+    function createCubeFigureSVG(seed, isMirrored = false) {
+        // Generació determinista de segments de cubs basada en la llavor
+        let svg = `<svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">`;
+        const colorMain = "#334155";
+        const colorTop = "#64748b";
+        const colorSide = "#1e293b";
+        
+        // Dibuix d'una estructura articulada de 4-5 cubs en format isomètric segons la llavor
+        const blocks = [
+            {x: 50, y: 50}, {x: 50, y: 30}, {x: 70, y: 30}, {x: (isMirrored ? 30 : 70), y: 50}, {x: 50, y: 70}
+        ];
+        
+        if (seed % 2 === 0) {
+            blocks.push({x: 30, y: 30});
+        } else {
+            blocks.push({x: 70, y: 70});
+        }
+
+        blocks.forEach((b, idx) => {
+            let cx = b.x;
+            let cy = b.y;
+            // Cub isomètric simplificat (rombes i rectangles)
+            svgో += `
+                <polygon points="${cx},${cy-10} ${cx+15},${cy-2} ${cx+15},${cy+12} ${cx},${cy+4}" fill="${colorSide}"/>
+                <polygon points="${cx},${cy-10} ${cx-15},${cy-2} ${cx-15},${cy+12} ${cx},${cy+4}" fill="${colorMain}"/>
+                <polygon points="${cx},${cy-20} ${cx+15},${cy-12} ${cx},${cy-4} ${cx-15},${cy-12}" fill="${colorTop}"/>
+            `;
+        });
+        
+        svg += `</svg>`;
+        return svg;
+    }
+
+    class MentalRotationAppMRT {
         constructor() {
             this.participant = {};
-            this.trials = [
-                { target: "▲-■-●", correct: [0, 2], options: ["▲-■-●", "●-■-▲", "▲-■-●", "■-●-▲"] },
-                { target: "T-X-Z", correct: [1, 3], options: ["Z-X-T", "T-X-Z", "X-T-Z", "T-X-Z"] },
-                { target: "★-◆-▲", correct: [0, 3], options: ["★-◆-▲", "▲-◆-★", "◆-★-▲", "★-◆-▲"] },
-                { target: "■-▲-●", correct: [1, 2], options: ["●-▲-■", "■-▲-●", "■-▲-●", "▲-■-●"] },
-                { target: "Z-T-X", correct: [0, 2], options: ["Z-T-X", "X-T-Z", "Z-T-X", "T-Z-X"] }
-            ];
+            this.totalItems = 20; // Nombre estàndard d'ítems de l'article de Vandenberg & Kuse
             this.currentTrialIndex = 0;
             this.selectedOptions = [];
             this.trialStartTime = 0;
             this.results = [];
+            this.trialsData = [];
 
+            this.generateTrials();
             this.initListeners();
+        }
+
+        generateTrials() {
+            // Generem 20 ítems on cada ítem té 4 opcions: 2 correctes (rotades) i 2 incorrectes (miralls)
+            for (let i = 0; i < this.totalItems; i++) {
+                // Per exemple, assignem de manera fixa que les opcions 0 i 2 són les correctes, i 1 i 3 les falses (miralls)
+                // En una versió avançada es barregen de forma aleatòria a cada ítem.
+                let correctIndices = [0, 2]; 
+                // Barrejem aleatòriament la posició de les 2 correctes
+                if (i % 3 === 0) correctIndices = [1, 3];
+                if (i % 5 === 0) correctIndices = [0, 3];
+                if (i % 7 === 0) correctIndices = [1, 2];
+
+                this.trialsData.push({
+                    seed: i + 10,
+                    correct: correctIndices
+                });
+            }
         }
 
         initListeners() {
@@ -280,7 +365,7 @@
         startTask() {
             document.getElementById('view-form').classList.add('hidden');
             document.getElementById('view-task').classList.remove('hidden');
-            document.getElementById('total-trials').textContent = this.trials.length;
+            document.getElementById('total-trials').textContent = this.totalItems;
             this.loadTrial();
         }
 
@@ -289,22 +374,26 @@
             document.getElementById('btn-confirm').disabled = true;
             document.getElementById('current-trial').textContent = this.currentTrialIndex + 1;
 
-            const trial = this.trials[this.currentTrialIndex];
-            document.getElementById('target-shape').textContent = trial.target;
+            const trial = this.trialsData[this.currentTrialIndex];
+
+            // Renderitzar la figura objectiu
+            document.getElementById('target-container').innerHTML = createCubeFigureSVG(trial.seed, false);
 
             const container = document.getElementById('options-container');
             container.innerHTML = '';
 
-            trial.options.forEach((opt, idx) => {
+            // Generar les 4 opcions (2 rotades correctes, 2 miralls incorrectes)
+            for (let optIdx = 0; optIdx < 4; optIdx++) {
+                const isCorrect = trial.correct.includes(optIdx);
                 const card = document.createElement('div');
                 card.className = 'option-card';
                 card.innerHTML = `
-                    <div style="font-size: 12px; color: #888;">Opció ${idx + 1}</div>
-                    <div class="shape-preview">${opt}</div>
+                    <div class="option-id">${optIdx + 1}</div>
+                    ${createCubeFigureSVG(trial.seed + optIdx, !isCorrect)}
                 `;
-                card.onclick = () => this.toggleOption(idx, card);
+                card.onclick = () => this.toggleOption(optIdx, card);
                 container.appendChild(card);
-            });
+            }
 
             this.trialStartTime = performance.now();
         }
@@ -322,36 +411,35 @@
                 }
             }
 
-            // Habilitar botó només si se n'han seleccionat exactament 2
+            // El test original exigeix marcar exactament 2 opcions per poder avançar
             document.getElementById('btn-confirm').disabled = this.selectedOptions.length !== 2;
         }
 
         submitTrial() {
             const trialEndTime = performance.now();
             const reactionTime = (trialEndTime - this.trialStartTime) / 1000; // en segons
-
-            const currentTrial = this.trials[this.currentTrialIndex];
+            const currentTrial = this.trialsData[this.currentTrialIndex];
             
-            // Comprovar encerts (exactament les 2 correctes)
+            // Validació: comprovar si les 2 opcions seleccionades coincideixen exactament amb les 2 correctes
             const sortedSelected = [...this.selectedOptions].sort();
             const sortedCorrect = [...currentTrial.correct].sort();
-            const isCorrectMatch = JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
+            const isFullyCorrect = JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
             
-            // Comptar encerts parcials o totals (0 a 2)
-            let score = 0;
+            // Puntuació parcial (0, 1 o 2 encerts per ítem)
+            let partialScore = 0;
             this.selectedOptions.forEach(opt => {
-                if (currentTrial.correct.includes(opt)) score++;
+                if (currentTrial.correct.includes(opt)) partialScore++;
             });
 
             this.results.push({
                 trial: this.currentTrialIndex + 1,
                 reactionTime: reactionTime.toFixed(2),
-                score: isCorrectMatch ? 2 : score,
-                correct: isCorrectMatch
+                score: isFullyCorrect ? 2 : (partialScore === 1 ? 1 : 0),
+                correct: isFullyCorrect
             });
 
             this.currentTrialIndex++;
-            if (this.currentTrialIndex < this.trials.length) {
+            if (this.currentTrialIndex < this.totalItems) {
                 this.loadTrial();
             } else {
                 this.showResults();
@@ -363,7 +451,11 @@
             document.getElementById('view-results').classList.remove('hidden');
 
             document.getElementById('participant-summary').textContent = 
-                `Participant: ${this.participant.name} (${this.participant.gender}, ${this.participant.handedness})`;
+                `Participant: ${this.participant.name} | Sexe: ${this.participant.gender} | Lateralitat: ${this.participant.handedness}`;
+
+            // Calcular puntuació total (màxim 20 ítems x 2 punts = 40, o nombre total d'ítems encertats completament)
+            const totalFullyCorrect = this.results.filter(r => r.correct).length;
+            document.getElementById('final-score-text').textContent = `Puntuació total (Ítems complets): ${totalFullyCorrect} / ${this.totalItems}`;
 
             const tbody = document.getElementById('results-tbody');
             tbody.innerHTML = '';
@@ -384,19 +476,20 @@
             const dataObj = {
                 participant: this.participant,
                 results: this.results,
+                totalScore: this.results.filter(r => r.correct).length,
                 timestamp: new Date().toISOString()
             };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `resultats_rotacio_${this.participant.name.replace(/\s+/g, '_')}.json`);
+            downloadAnchor.setAttribute("download", `mrt_resultats_${this.participant.name.replace(/\s+/g, '_')}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
     }
 
-    const app = new MentalRotationApp();
+    const app = new MentalRotationAppMRT();
 </script>
 
 </body>

@@ -288,7 +288,7 @@
 </div>
 
 <script>
-    // Motor 3D amb orientacions tridimensionals pures i centratge automàtic (Box3)
+    // Motor 3D amb múltiples tons de gris d'alt contrast per a cada cara del cub
     function render3DBlockFigure(containerElement, structureType, rotX, rotY, rotZ, isMirrored) {
         if (!containerElement) return;
         containerElement.innerHTML = '';
@@ -306,20 +306,25 @@
         renderer.setSize(width, height);
         containerElement.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 20, 15);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        directionalLight.position.set(15, 25, 20);
         scene.add(directionalLight);
 
         const group = new THREE.Group();
         
-        const materialTop = new THREE.MeshBasicMaterial({ color: 0xf1f5f9 });
-        const materialSide = new THREE.MeshBasicMaterial({ color: 0x64748b });
-        const materialBottom = new THREE.MeshBasicMaterial({ color: 0x1e293b });
+        // 6 materials diferents amb tons de gris molt contrastats per a cadascuna de les cares del cub
+        const matRight  = new THREE.MeshLambertMaterial({ color: 0x94a3b8 }); // Gris clar lateral dret
+        const matLeft   = new THREE.MeshLambertMaterial({ color: 0x475569 }); // Gris fosc lateral esquerre
+        const matTop    = new THREE.MeshLambertMaterial({ color: 0xf8fafc }); // Blanc superior
+        const matBottom = new THREE.MeshLambertMaterial({ color: 0x0f172a }); // Negre inferior
+        const matFront  = new THREE.MeshLambertMaterial({ color: 0xcbd5e1 }); // Gris molt clar frontal
+        const matBack   = new THREE.MeshLambertMaterial({ color: 0x334155 }); // Gris molt fosc posterior
 
-        const cubeMaterials = [materialSide, materialSide, materialTop, materialBottom, materialSide, materialSide];
+        const cubeMaterials = [matRight, matLeft, matTop, matBottom, matFront, matBack];
+        
         const cubeGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
         const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
         const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 3 });
@@ -353,14 +358,13 @@
             group.add(mesh);
         });
 
-        // APLICACIÓ DE LA ROTACIÓ TRIDIMENSIONAL PURA (X, Y, Z)
         group.rotation.x = rotX;
         group.rotation.y = rotY;
         group.rotation.z = rotZ;
 
         scene.add(group);
 
-        // CENTRAT AUTOMÀTIC ABSOLUT AMB BOX3 (Evita qualsevol desplaçament lateral o tall)
+        // Centrat automàtic amb Box3
         const box = new THREE.Box3().setFromObject(group);
         const center = box.getCenter(new THREE.Vector3());
         group.position.sub(center);
@@ -383,7 +387,6 @@
         }
 
         initTrialsDataset() {
-            // Matriu d'orientacions 3D estrictament triades perquè SEMPRE es vegin múltiples cares i volum
             const volumetricOrientations = [
                 {x: 0.6, y: 0.8, z: 0.4},
                 {x: 1.1, y: 1.5, z: 0.7},
@@ -402,7 +405,6 @@
                 const mirrorRot1  = volumetricOrientations[(i + 1) % volumetricOrientations.length];
                 const mirrorRot2  = volumetricOrientations[(i + 3) % volumetricOrientations.length];
 
-                // Exactament 2 opcions correctes i 2 incorrectes (mirall) per ítem
                 let correctIndices = [0, 2];
                 if (i % 3 === 0) correctIndices = [1, 3];
                 if (i % 5 === 0) correctIndices = [0, 3];

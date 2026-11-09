@@ -16,7 +16,9 @@
     --border: #cbd5e1;
 }
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -39,7 +41,10 @@ body {
     align-self: flex-start;
 }
 
-h2 { text-align: center; margin-top: 0; }
+h2 {
+    text-align: center;
+    margin-top: 0;
+}
 
 .subtitle {
     text-align: center;
@@ -47,7 +52,9 @@ h2 { text-align: center; margin-top: 0; }
     margin-bottom: 25px;
 }
 
-.form-group { margin-bottom: 18px; }
+.form-group {
+    margin-bottom: 18px;
+}
 
 label {
     display: block;
@@ -80,7 +87,9 @@ button:disabled {
     cursor: not-allowed;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 .task-header {
     display: flex;
@@ -110,6 +119,7 @@ button:disabled {
 .target-canvas-container {
     width: 100%;
     height: 260px;
+    position: relative;
 }
 
 .options-grid {
@@ -128,7 +138,9 @@ button:disabled {
     background: white;
 }
 
-.option-card:hover { border-color: var(--secondary); }
+.option-card:hover {
+    border-color: var(--secondary);
+}
 
 .option-card.selected {
     border-color: var(--secondary);
@@ -147,6 +159,7 @@ button:disabled {
 .canvas-container {
     width: 100%;
     height: 225px;
+    position: relative;
 }
 
 .canvas-container canvas,
@@ -154,6 +167,15 @@ button:disabled {
     display: block;
     width: 100%;
     height: 100%;
+}
+
+.error-message {
+    color: #b91c1c;
+    background: #fee2e2;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
 }
 
 .results-table {
@@ -170,21 +192,22 @@ button:disabled {
     font-size: 14px;
 }
 
-.results-table th { background: #f1f5f9; }
-
-.error-message {
-    color: #b91c1c;
-    background: #fee2e2;
-    border-radius: 8px;
-    padding: 12px;
-    margin-top: 12px;
-    display: none;
+.results-table th {
+    background: #f1f5f9;
 }
 
 @media(max-width: 520px) {
-    .container { padding: 15px; }
-    .canvas-container { height: 180px; }
-    .target-canvas-container { height: 220px; }
+    .container {
+        padding: 15px;
+    }
+
+    .canvas-container {
+        height: 180px;
+    }
+
+    .target-canvas-container {
+        height: 220px;
+    }
 }
 </style>
 </head>
@@ -322,8 +345,7 @@ const MRT_SHAPES = [
 ];
 
 
-// Es manté un renderer per contenidor.
-// Això evita crear nous contextos WebGL a cada pregunta.
+// Un renderer per contenidor.
 const RENDERERS = new WeakMap();
 
 
@@ -394,7 +416,7 @@ const CUBE_ROTATIONS = generateAllCubeRotations();
 
 
 // =====================================================
-// IDENTIFICAR UNA FIGURA EN 3D
+// IDENTIFICAR UNA FIGURA 3D
 // =====================================================
 
 function getShapeKey(shape, mirrored, matrix) {
@@ -519,12 +541,30 @@ function generateOptionRotation(targetRotation, matrix) {
 
 
 // =====================================================
-// CREAR O REUTILITZAR EL RENDERER
+// OBTENIR O CREAR EL RENDERER
 // =====================================================
 
 function createRenderer(container) {
 
     let renderer = RENDERERS.get(container);
+
+    // Si el context WebGL s'ha perdut, crear un renderer nou.
+    if (
+        renderer &&
+        renderer.getContext().isContextLost()
+    ) {
+
+        try {
+            renderer.dispose();
+        } catch (e) {}
+
+        container.innerHTML = "";
+
+        RENDERERS.delete(container);
+
+        renderer = null;
+
+    }
 
     if (!renderer) {
 
@@ -540,9 +580,12 @@ function createRenderer(container) {
 
         renderer.setClearColor(0xffffff);
 
-        RENDERERS.set(container, renderer);
+        renderer.domElement.style.width = "100%";
+        renderer.domElement.style.height = "100%";
 
         container.appendChild(renderer.domElement);
+
+        RENDERERS.set(container, renderer);
 
     }
 
@@ -561,8 +604,12 @@ function render3DFigure(container, shapeId, rotation, mirrored) {
         throw new Error("No s'ha pogut carregar Three.js.");
     }
 
-    const width = Math.max(1, container.clientWidth);
-    const height = Math.max(1, container.clientHeight);
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    if (width <= 0 || height <= 0) {
+        throw new Error("El contenidor 3D encara no té dimensions.");
+    }
 
     const scene = new THREE.Scene();
 
@@ -644,6 +691,7 @@ function render3DFigure(container, shapeId, rotation, mirrored) {
 
     scene.add(group);
 
+    // Centrar la figura.
     const bounds = new THREE.Box3().setFromObject(group);
 
     const center = bounds.getCenter(new THREE.Vector3());
@@ -660,20 +708,14 @@ function render3DFigure(container, shapeId, rotation, mirrored) {
 
     group.scale.setScalar(3.8 / maxDimension);
 
+    // Renderitzar.
     renderer.render(scene, camera);
 
-    // Alliberar geometries i materials després de dibuixar.
+    // Alliberar recursos de la figura.
     geometry.dispose();
     edgeGeometry.dispose();
     material.dispose();
     edgeMaterial.dispose();
-
-    // Alliberar els recursos de la resta de l'escena.
-    scene.traverse(object => {
-        if (object.isLight) {
-            object.dispose?.();
-        }
-    });
 
 }
 
@@ -787,7 +829,6 @@ class MentalRotationApp {
             ).slice(0, 2);
 
 
-            // Comprovar que hi ha quatre opcions úniques.
             if (
                 selectedCorrect.length !== 2 ||
                 selectedMirrors.length !== 2
@@ -843,8 +884,11 @@ class MentalRotationApp {
                 };
 
                 try {
+
                     this.start();
+
                 } catch (error) {
+
                     console.error(error);
 
                     const errorBox = document.getElementById("form-error");
@@ -853,6 +897,7 @@ class MentalRotationApp {
                         "No s'ha pogut iniciar la prova 3D. Comprova que el navegador permeti WebGL i que hi hagi connexió a Internet.";
 
                     errorBox.style.display = "block";
+
                 }
 
             });
@@ -888,7 +933,7 @@ class MentalRotationApp {
 
 
     // =================================================
-    // CREAR LES QUATRE TARGETES UNA SOLA VEGADA
+    // CREAR LES QUATRE TARGETES
     // =================================================
 
     createOptionCards() {
@@ -924,6 +969,61 @@ class MentalRotationApp {
 
 
     // =================================================
+    // DIBUIXAR LA FIGURA OBJECTIU AMB REINTENTS
+    // =================================================
+
+    drawTarget(trial, trialNumber, attempt = 0) {
+
+        if (this.currentTrial !== trialNumber) {
+            return;
+        }
+
+        const targetContainer =
+            document.getElementById("target-canvas-box");
+
+        try {
+
+            render3DFigure(
+                targetContainer,
+                trial.shapeId,
+                trial.targetRotation,
+                false
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "No s'ha pogut dibuixar la figura objectiu. Intent:",
+                attempt + 1,
+                error
+            );
+
+            if (attempt < 4) {
+
+                setTimeout(() => {
+
+                    this.drawTarget(
+                        trial,
+                        trialNumber,
+                        attempt + 1
+                    );
+
+                }, 150 * (attempt + 1));
+
+            } else {
+
+                console.error(
+                    "No s'ha pogut carregar la figura objectiu després de diversos intents."
+                );
+
+            }
+
+        }
+
+    }
+
+
+    // =================================================
     // CARREGAR ÍTEM
     // =================================================
 
@@ -933,25 +1033,25 @@ class MentalRotationApp {
 
         const trial = this.trials[this.currentTrial];
 
+        const trialNumber = this.currentTrial;
+
         document.getElementById("current-trial").textContent =
             this.currentTrial + 1;
 
         document.getElementById("btn-confirm").disabled = true;
 
-        // Figura objectiu.
-        render3DFigure(
-            document.getElementById("target-canvas-box"),
-            trial.shapeId,
-            trial.targetRotation,
-            false
-        );
+        const targetContainer =
+            document.getElementById("target-canvas-box");
 
-        // Actualitzar les quatre targetes existents.
+        // Netejar seleccions anteriors.
+        this.optionCards.forEach(card => {
+            card.classList.remove("selected");
+        });
+
+        // Dibuixar les quatre opcions.
         trial.options.forEach((option, index) => {
 
             const card = this.optionCards[index];
-
-            card.classList.remove("selected");
 
             render3DFigure(
                 card.querySelector(".canvas-container"),
@@ -959,6 +1059,28 @@ class MentalRotationApp {
                 option.rotation,
                 option.mirrored
             );
+
+        });
+
+        // Netejar el dibuix anterior de la figura objectiu.
+        const oldCanvas = targetContainer.querySelector("canvas");
+
+        if (oldCanvas) {
+            oldCanvas.style.visibility = "hidden";
+        }
+
+        // Dibuixar la figura objectiu quan el navegador
+        // ja hagi actualitzat les dimensions de la pantalla.
+        requestAnimationFrame(() => {
+
+            requestAnimationFrame(() => {
+
+                this.drawTarget(
+                    trial,
+                    trialNumber
+                );
+
+            });
 
         });
 

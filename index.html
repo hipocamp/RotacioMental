@@ -1,220 +1,222 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mental Rotations Test (MRT 3D) - Vandenberg & Kuse</title>
-    <!-- Carreguem Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        :root {
-            --primary: #0f172a;
-            --secondary: #0284c7;
-            --bg: #f1f5f9;
-            --card-bg: #ffffff;
-            --border: #cbd5e1;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mental Rotations Test 3D</title>
 
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--primary);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-        .container {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 820px;
-            box-sizing: border-box;
-        }
+<style>
+:root {
+    --primary: #0f172a;
+    --secondary: #0284c7;
+    --bg: #f1f5f9;
+    --border: #cbd5e1;
+}
 
-        h2 {
-            color: var(--primary);
-            text-align: center;
-            margin-top: 0;
-            font-size: 24px;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--primary);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.1);
+    width: 100%;
+    max-width: 850px;
+    align-self: flex-start;
+}
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 14px;
-        }
+h2 {
+    text-align: center;
+    margin-top: 0;
+}
 
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 15px;
-            box-sizing: border-box;
-            background: #fff;
-        }
+.subtitle {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 25px;
+}
 
-        button {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-        }
+.form-group {
+    margin-bottom: 18px;
+}
 
-        button:hover:not(:disabled) {
-            background-color: #0369a1;
-        }
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
 
-        button:disabled {
-            background-color: #94a3b8;
-            cursor: not-allowed;
-        }
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 15px;
+}
 
-        .hidden {
-            display: none !important;
-        }
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--secondary);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #64748b;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 10px;
-        }
+button:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
 
-        .target-box {
-            text-align: center;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border: 2px solid #94a3b8;
-        }
+.hidden {
+    display: none !important;
+}
 
-        .target-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #0f172a;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: bold;
+}
 
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+.target-box {
+    border: 2px solid #94a3b8;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+}
 
-        .option-card {
-            background: #fff;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
+.target-label {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
 
-        .option-card:hover {
-            border-color: var(--secondary);
-            transform: translateY(-2px);
-        }
+.target-canvas-container {
+    width: 100%;
+    height: 260px;
+}
 
-        .option-card.selected {
-            border-color: var(--secondary);
-            background-color: #e0f2fe;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
-        }
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 15px 0 20px;
+}
 
-        .option-id {
-            position: absolute;
-            top: 8px;
-            left: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #0f172a;
-            z-index: 10;
-        }
+.option-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    position: relative;
+    cursor: pointer;
+    background: white;
+}
 
-        .canvas-container {
-            width: 100%;
-            height: 250px;
-            overflow: hidden;
-        }
+.option-card:hover {
+    border-color: var(--secondary);
+}
 
-        .canvas-container canvas,
-        .target-canvas-container canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
+.option-card.selected {
+    border-color: var(--secondary);
+    background: #e0f2fe;
+    box-shadow: 0 0 0 2px rgba(2,132,199,.15);
+}
 
-        .target-canvas-container {
-            width: 100%;
-            height: 270px;
-            overflow: hidden;
-        }
+.option-id {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-weight: bold;
+    z-index: 2;
+}
 
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            margin-bottom: 20px;
-        }
+.canvas-container {
+    width: 100%;
+    height: 225px;
+}
 
-        .results-table th, .results-table td {
-            border: 1px solid #e2e8f0;
-            padding: 10px;
-            text-align: center;
-            font-size: 14px;
-        }
+.canvas-container canvas,
+.target-canvas-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 
-        .results-table th {
-            background-color: #f1f5f9;
-            color: #334155;
-        }
-    </style>
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.results-table th,
+.results-table td {
+    border: 1px solid #e2e8f0;
+    padding: 9px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.results-table th {
+    background: #f1f5f9;
+}
+
+@media(max-width: 520px) {
+    .container {
+        padding: 15px;
+    }
+
+    .canvas-container {
+        height: 180px;
+    }
+
+    .target-canvas-container {
+        height: 220px;
+    }
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <!-- FASE 1: FORMULARI DE REGISTRE -->
+
+    <!-- FORMULARI -->
     <div id="view-form">
+
         <h2>Mental Rotations Test (MRT 3D)</h2>
-        <p class="subtitle">Rèplica experimental basada en Vandenberg & Kuse (1978)</p>
+
+        <p class="subtitle">
+            Adaptació experimental basada en Vandenberg & Kuse (1978)
+        </p>
 
         <form id="participant-form">
+
             <div class="form-group">
-                <label for="name">Nom / Identificador de Participant:</label>
+                <label for="name">Nom / Identificador:</label>
                 <input type="text" id="name" required placeholder="Ex: P001">
             </div>
 
@@ -243,458 +245,608 @@
                 </select>
             </div>
 
-            <button type="submit">Iniciar Prova 3D</button>
+            <button type="submit">Iniciar prova 3D</button>
+
         </form>
     </div>
 
-    <!-- FASE 2: LA TASCA DE ROTACIÓ 3D -->
+
+    <!-- PROVA -->
     <div id="view-task" class="hidden">
+
         <div class="task-header">
-            <span>Ítem <span id="current-trial">1</span> / <span id="total-trials">20</span></span>
-            <span style="color: var(--secondary);">Selecciona les 2 figures correctes</span>
+            <span>Ítem <span id="current-trial">1</span> / 20</span>
+            <span>Selecciona les 2 figures correctes</span>
         </div>
 
         <div class="target-box">
-            <div class="target-label">FIGURA OBJECTIU (3D)</div>
-            <div class="target-canvas-container" id="target-canvas-box"></div>
+
+            <div class="target-label">FIGURA OBJECTIU</div>
+
+            <div id="target-canvas-box"
+                 class="target-canvas-container"></div>
+
         </div>
 
-        <p style="font-size: 13px; text-align: center; margin-bottom: 12px; color: #0f172a; font-weight: 500;">
-            Clica exactament sobre les <strong>2 figures 3D</strong> de sota que corresponguin a la mateixa estructura girada (ignora les reflectides en mirall).
+        <p style="text-align:center;font-size:14px;">
+            Selecciona les dues figures que representen la mateixa estructura
+            girada. No seleccionis les figures reflectides en mirall.
         </p>
 
         <div class="options-grid" id="options-container"></div>
 
-        <button id="btn-confirm" disabled onclick="app.submitTrial()">Confirmar Resposta</button>
+        <button id="btn-confirm" disabled>
+            Confirmar resposta
+        </button>
+
     </div>
 
-    <!-- FASE 3: RESULTATS -->
+
+    <!-- RESULTATS -->
     <div id="view-results" class="hidden">
-        <h2>Resultats de la Prova</h2>
-        <p id="participant-summary" style="text-align: center; font-weight: 600; color: #0f172a;"></p>
 
-        <div style="background: #f8fafc; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-            <span style="font-size: 18px; font-weight: bold; color: var(--secondary);" id="final-score-text">Puntuació total: 0 / 20</span>
+        <h2>Resultats de la prova</h2>
+
+        <p id="participant-summary" style="text-align:center;"></p>
+
+        <div style="background:#f1f5f9;padding:15px;text-align:center;border-radius:8px;">
+            <strong id="final-score-text"></strong>
         </div>
 
-        <div style="max-height: 250px; overflow-y: auto;">
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Ítem</th>
-                        <th>Temps (s)</th>
-                        <th>Encerts (0-2)</th>
-                        <th>Estat</th>
-                    </tr>
-                </thead>
-                <tbody id="results-tbody"></tbody>
-            </table>
-        </div>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Temps</th>
+                    <th>Encerts</th>
+                    <th>Resultat</th>
+                </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+        </table>
 
-        <br>
-        <button onclick="app.downloadJSON()">Descarregar Dades Analítiques (JSON)</button>
+        <button id="download-button">
+            Descarregar resultats JSON
+        </button>
+
     </div>
+
 </div>
+
 
 <script>
 
-    // Cinc estructures de cinc cubs connectats. Totes són tridimensionals i
-    // s'han triat perquè la seva imatge especular no sigui equivalent per rotació.
-    const MRT_SHAPES = [
-        [[0,0,0],[1,0,0],[1,0,1],[1,1,0],[2,0,1]],
-        [[0,0,1],[1,0,0],[1,0,1],[2,0,1],[2,1,1]],
-        [[0,0,0],[0,0,1],[0,1,1],[1,0,0],[2,0,0]],
-        [[0,0,0],[0,0,1],[1,0,1],[1,1,1],[2,1,1]],
-        [[0,0,0],[0,0,1],[0,0,2],[0,1,1],[1,0,2]]
+// =====================================================
+// ESTRUCTURES 3D
+// =====================================================
+
+const MRT_SHAPES = [
+
+    [[0,0,0],[1,0,0],[1,0,1],[1,1,0],[2,0,1]],
+
+    [[0,0,1],[1,0,0],[1,0,1],[2,0,1],[2,1,1]],
+
+    [[0,0,0],[0,0,1],[0,1,1],[1,0,0],[2,0,0]],
+
+    [[0,0,0],[0,0,1],[1,0,1],[1,1,1],[2,1,1]],
+
+    [[0,0,0],[0,0,1],[0,0,2],[0,1,1],[1,0,2]]
+
+];
+
+const RENDERERS = new WeakMap();
+
+
+// =====================================================
+// MATERIALS I RENDERITZACIÓ
+// =====================================================
+
+function createRenderer(container) {
+
+    let renderer = RENDERERS.get(container);
+
+    if (!renderer) {
+
+        renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: false,
+            powerPreference: "high-performance"
+        });
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio || 1, 2)
+        );
+
+        renderer.setClearColor(0xffffff);
+
+        RENDERERS.set(container, renderer);
+
+        container.appendChild(renderer.domElement);
+    }
+
+    return renderer;
+}
+
+
+function render3DFigure(container, shapeId, rotation, mirrored) {
+
+    if (!container || !window.THREE) return;
+
+    const width = Math.max(1, container.clientWidth);
+    const height = Math.max(1, container.clientHeight);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+
+    // Càmera en perspectiva obliqua.
+    const camera = new THREE.PerspectiveCamera(
+        32,
+        width / height,
+        0.1,
+        100
+    );
+
+    camera.position.set(7, 6, 8);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = createRenderer(container);
+    renderer.setSize(width, height, false);
+
+    // Il·luminació uniforme.
+    scene.add(
+        new THREE.AmbientLight(0xffffff, 0.85)
+    );
+
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light1.position.set(5, 8, 7);
+    scene.add(light1);
+
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.35);
+    light2.position.set(-5, 3, -5);
+    scene.add(light2);
+
+    const group = new THREE.Group();
+
+    const geometry = new THREE.BoxGeometry(1.08, 1.08, 1.08);
+
+    // Mateix color base en totes les figures.
+    const material = new THREE.MeshPhongMaterial({
+        color: 0x78a9e0,
+        specular: 0x334455,
+        shininess: 8,
+        flatShading: true
+    });
+
+    const edgeGeometry = new THREE.EdgesGeometry(geometry);
+
+    const edgeMaterial = new THREE.LineBasicMaterial({
+        color: 0x172b43
+    });
+
+    const shape = MRT_SHAPES[shapeId];
+
+    shape.forEach(position => {
+
+        const cube = new THREE.Mesh(geometry, material);
+
+        const edges = new THREE.LineSegments(
+            edgeGeometry,
+            edgeMaterial
+        );
+
+        cube.add(edges);
+
+        const x = mirrored ? -position[0] : position[0];
+
+        cube.position.set(
+            x * 1.08,
+            position[1] * 1.08,
+            position[2] * 1.08
+        );
+
+        group.add(cube);
+
+    });
+
+    group.rotation.order = "XYZ";
+
+    group.rotation.set(
+        rotation.x,
+        rotation.y,
+        rotation.z
+    );
+
+    scene.add(group);
+
+    // Centrar la figura.
+    const bounds = new THREE.Box3().setFromObject(group);
+
+    const center = bounds.getCenter(new THREE.Vector3());
+
+    group.position.sub(center);
+
+    // Escala adaptativa.
+    const size = bounds.getSize(new THREE.Vector3());
+
+    const maxDimension = Math.max(
+        size.x,
+        size.y,
+        size.z
+    );
+
+    group.scale.setScalar(
+        3.8 / maxDimension
+    );
+
+    renderer.render(scene, camera);
+
+    geometry.dispose();
+    edgeGeometry.dispose();
+    material.dispose();
+    edgeMaterial.dispose();
+
+}
+
+
+// =====================================================
+// ROTACIONS MÉS FÀCILS
+// =====================================================
+
+// Es limita la variació dels girs per facilitar la comparació.
+// Totes les opcions correctes són rotacions de la figura objectiu.
+
+function generateTargetRotation() {
+
+    return {
+        x: Math.PI / 5,
+        y: Math.PI / 6,
+        z: 0
+    };
+
+}
+
+
+function generateEasyRotation(targetRotation) {
+
+    // Girs senzills al voltant de l'eix vertical.
+    const turns = [
+        0,
+        Math.PI / 2,
+        Math.PI,
+        Math.PI * 1.5
     ];
 
-    // Un únic context WebGL per cada espai de dibuix: evita esgotar els contextos del navegador.
-    const MRT_RENDERERS = new WeakMap();
+    const turn = turns[
+        Math.floor(Math.random() * turns.length)
+    ];
 
-    // Renderització 3D amb color uniforme, ombres consistents i perspectiva obliqua.
-    function render3DBlockFigure(containerElement, structureType, rotObj, isMirrored) {
-        if (!containerElement || !window.THREE) return;
+    return {
+        x: targetRotation.x,
+        y: targetRotation.y + turn,
+        z: targetRotation.z
+    };
 
-        const width = Math.max(1, containerElement.clientWidth || 360);
-        const height = Math.max(1, containerElement.clientHeight || 250);
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xffffff);
+}
 
-        // Càmera fixa i obliqua per mantenir la mateixa referència visual a tots els ítems.
-        const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 100);
-        camera.position.set(7.5, 6.5, 9.0);
-        camera.lookAt(0, 0, 0);
 
-        let renderer = MRT_RENDERERS.get(containerElement);
-        if (!renderer) {
-            containerElement.innerHTML = '';
-            renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: false,
-                powerPreference: 'high-performance'
-            });
-            renderer.setPixelRatio(Math.min((window.devicePixelRatio || 1) * 2, 3));
-            if ('outputColorSpace' in renderer && THREE.SRGBColorSpace) {
-                renderer.outputColorSpace = THREE.SRGBColorSpace;
-            }
-            MRT_RENDERERS.set(containerElement, renderer);
-            containerElement.appendChild(renderer.domElement);
-        }
-        renderer.setSize(width, height, false);
+// =====================================================
+// APLICACIÓ
+// =====================================================
 
-        // Il·luminació moderada: evita que algunes cares quedin blanques o sense color.
-        scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-        const keyLight = new THREE.DirectionalLight(0xffffff, 0.78);
-        keyLight.position.set(5, 8, 7);
-        scene.add(keyLight);
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.32);
-        fillLight.position.set(-6, 3, -4);
-        scene.add(fillLight);
+class MentalRotationApp {
 
-        const group = new THREE.Group();
+    constructor() {
 
-        // Un sol color base per a totes les cares i tots els cubs.
-        // La il·luminació crea el relleu, no una paleta diferent per a cada opció.
-        const cubeMaterial = new THREE.MeshPhongMaterial({
-            color: 0x8fb7e8,
-            specular: 0x24364d,
-            shininess: 7,
-            flatShading: true
-        });
+        this.totalItems = 20;
+        this.currentTrial = 0;
 
-        const cubeSize = 1.12;
-        const spacing = 1.12;
-        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-        const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
-        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x263548 });
+        this.participant = {};
+        this.results = [];
+        this.trials = [];
 
-        const shape = MRT_SHAPES[((structureType % MRT_SHAPES.length) + MRT_SHAPES.length) % MRT_SHAPES.length];
+        this.selected = [];
+        this.startTime = 0;
 
-        shape.forEach(pos => {
-            const mesh = new THREE.Mesh(cubeGeo, cubeMaterial);
-            const wireframe = new THREE.LineSegments(edgesGeo, edgesMaterial);
-            mesh.add(wireframe);
+        this.generateTrials();
 
-            const x = (isMirrored ? -pos[0] : pos[0]) * spacing;
-            mesh.position.set(x, pos[1] * spacing, pos[2] * spacing);
-            group.add(mesh);
-        });
+        this.initEvents();
 
-        group.rotation.order = 'XYZ';
-        group.rotation.set(rotObj.x, rotObj.y, rotObj.z, 'XYZ');
-        scene.add(group);
-
-        // Centrat i escala calculats a partir de les dimensions reals.
-        const bounds = new THREE.Box3().setFromObject(group);
-        const center = bounds.getCenter(new THREE.Vector3());
-        group.position.sub(center);
-
-        const size = bounds.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-
-        group.scale.setScalar(4.15 / Math.max(maxDim, 0.1));
-
-        renderer.render(scene, camera);
-
-        cubeGeo.dispose();
-        edgesGeo.dispose();
-        cubeMaterial.dispose();
-        edgesMaterial.dispose();
     }
 
-    class MentalRotationApp3DComplete {
-        constructor() {
-            this.participant = {};
-            this.totalItems = 20;
-            this.currentTrialIndex = 0;
-            this.selectedOptions = [];
-            this.trialStartTime = 0;
-            this.results = [];
-            this.trialsData = [];
 
-            this.initTrialsDataset();
-            this.initEventListeners();
-        }
+    generateTrials() {
 
-        initTrialsDataset() {
-            // Cada ítem utilitza una estructura 3D base, amb dues rotacions
-            // pròpies i dues versions especulars. Les opcions correctes són
-            // congruents amb l'objectiu; les especulars no es poden obtenir girant-lo.
+        for (let i = 0; i < this.totalItems; i++) {
 
-            const random3DRotation = (shapeId) => {
-                const shape = MRT_SHAPES[shapeId];
+            const shapeId = i % MRT_SHAPES.length;
 
-                // Eix de profunditat de la càmera, expressat en coordenades de món.
-                const view = new THREE.Vector3(7.5, 6.5, 9.0).normalize();
-                const right = new THREE.Vector3()
-                    .crossVectors(new THREE.Vector3(0, 1, 0), view)
-                    .normalize();
+            const targetRotation = generateTargetRotation();
 
-                const up = new THREE.Vector3()
-                    .crossVectors(view, right)
-                    .normalize();
+            // Dues respostes correctes entre les quatre opcions.
+            const correctPositions = [0,1,2,3]
+                .sort(() => Math.random() - 0.5)
+                .slice(0,2);
 
-                // Rebutja orientacions en què la profunditat projectada sigui massa petita:
-                // així les estructures no queden visualment aplanades.
-                for (let attempt = 0; attempt < 100; attempt++) {
-                    const candidate = {
-                        x: Math.random() * Math.PI * 2,
-                        y: Math.random() * Math.PI * 2,
-                        z: Math.random() * Math.PI * 2
-                    };
+            const options = [];
 
-                    const euler = new THREE.Euler(
-                        candidate.x,
-                        candidate.y,
-                        candidate.z,
-                        'XYZ'
-                    );
+            for (let j = 0; j < 4; j++) {
 
-                    const points = shape.map(p =>
-                        new THREE.Vector3(p[0], p[1], p[2]).applyEuler(euler)
-                    );
+                const correct = correctPositions.includes(j);
 
-                    const ranges = axis => {
-                        const values = points.map(p => p.dot(axis));
-                        return Math.max(...values) - Math.min(...values) + 1.12;
-                    };
+                options.push({
 
-                    const screenWidth = ranges(right);
-                    const screenHeight = ranges(up);
-                    const depth = ranges(view);
+                    shapeId: shapeId,
 
-                    if (depth >= 0.38 * Math.max(screenWidth, screenHeight)) {
-                        return candidate;
-                    }
-                }
+                    rotation: generateEasyRotation(targetRotation),
 
-                return { x: 0.85, y: 1.05, z: 0.65 };
-            };
+                    mirrored: !correct,
 
-            for (let i = 0; i < this.totalItems; i++) {
-                const structId = i % MRT_SHAPES.length;
-                const targetRot = random3DRotation(structId);
+                    correct: correct
 
-                // Distribució equilibrada i aleatòria de les dues respostes correctes.
-                const correctIndices = [0, 1, 2, 3]
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 2)
-                    .sort((a, b) => a - b);
-
-                const optionsArr = [];
-
-                for (let opt = 0; opt < 4; opt++) {
-                    const isCorrect = correctIndices.includes(opt);
-
-                    optionsArr.push({
-                        struct: structId,
-                        rot: random3DRotation(structId),
-                        mirrored: !isCorrect
-                    });
-                }
-
-                this.trialsData.push({
-                    targetStruct: structId,
-                    targetRot,
-                    options: optionsArr,
-                    correct: correctIndices
                 });
+
             }
+
+            this.trials.push({
+
+                shapeId: shapeId,
+
+                targetRotation: targetRotation,
+
+                options: options,
+
+                correctPositions: correctPositions
+
+            });
+
         }
 
-        initEventListeners() {
-            document.getElementById('participant-form')
-                .addEventListener('submit', (e) => {
-                    e.preventDefault();
+    }
 
-                    this.participant = {
-                        name: document.getElementById('name').value,
-                        dob: document.getElementById('dob').value,
-                        handedness: document.getElementById('handedness').value,
-                        gender: document.getElementById('gender').value
-                    };
 
-                    this.startTask();
-                });
+    initEvents() {
+
+        document.getElementById("participant-form")
+            .addEventListener("submit", e => {
+
+                e.preventDefault();
+
+                this.participant = {
+
+                    name: document.getElementById("name").value,
+
+                    dob: document.getElementById("dob").value,
+
+                    handedness: document.getElementById("handedness").value,
+
+                    gender: document.getElementById("gender").value
+
+                };
+
+                this.start();
+
+            });
+
+
+        document.getElementById("btn-confirm")
+            .addEventListener("click", () => this.submit());
+
+
+        document.getElementById("download-button")
+            .addEventListener("click", () => this.download());
+
+    }
+
+
+    start() {
+
+        document.getElementById("view-form").classList.add("hidden");
+
+        document.getElementById("view-task").classList.remove("hidden");
+
+        this.loadTrial();
+
+    }
+
+
+    loadTrial() {
+
+        this.selected = [];
+
+        const trial = this.trials[this.currentTrial];
+
+        document.getElementById("current-trial").textContent =
+            this.currentTrial + 1;
+
+        document.getElementById("btn-confirm").disabled = true;
+
+        // Figura objectiu.
+        render3DFigure(
+            document.getElementById("target-canvas-box"),
+            trial.shapeId,
+            trial.targetRotation,
+            false
+        );
+
+        const container = document.getElementById("options-container");
+
+        container.innerHTML = "";
+
+        trial.options.forEach((option, index) => {
+
+            const card = document.createElement("div");
+
+            card.className = "option-card";
+
+            card.innerHTML = `
+                <div class="option-id">${index + 1}</div>
+                <div class="canvas-container"></div>
+            `;
+
+            card.addEventListener("click", () => {
+                this.toggle(index, card);
+            });
+
+            container.appendChild(card);
+
+            render3DFigure(
+                card.querySelector(".canvas-container"),
+                option.shapeId,
+                option.rotation,
+                option.mirrored
+            );
+
+        });
+
+        this.startTime = performance.now();
+
+    }
+
+
+    toggle(index, card) {
+
+        const position = this.selected.indexOf(index);
+
+        if (position !== -1) {
+
+            this.selected.splice(position, 1);
+
+            card.classList.remove("selected");
+
+        } else if (this.selected.length < 2) {
+
+            this.selected.push(index);
+
+            card.classList.add("selected");
+
         }
 
-        startTask() {
-            document.getElementById('view-form').classList.add('hidden');
-            document.getElementById('view-task').classList.remove('hidden');
-            document.getElementById('total-trials').textContent = this.totalItems;
+        document.getElementById("btn-confirm").disabled =
+            this.selected.length !== 2;
+
+    }
+
+
+    submit() {
+
+        const trial = this.trials[this.currentTrial];
+
+        const elapsed =
+            (performance.now() - this.startTime) / 1000;
+
+        let score = 0;
+
+        this.selected.forEach(index => {
+
+            if (trial.options[index].correct) {
+                score++;
+            }
+
+        });
+
+        const fullyCorrect = score === 2;
+
+        this.results.push({
+
+            item: this.currentTrial + 1,
+
+            time: elapsed.toFixed(2),
+
+            score: score,
+
+            correct: fullyCorrect
+
+        });
+
+        this.currentTrial++;
+
+        if (this.currentTrial < this.totalItems) {
 
             this.loadTrial();
+
+        } else {
+
+            this.showResults();
+
         }
 
-        loadTrial() {
-            this.selectedOptions = [];
-
-            document.getElementById('btn-confirm').disabled = true;
-            document.getElementById('current-trial').textContent =
-                this.currentTrialIndex + 1;
-
-            const trial = this.trialsData[this.currentTrialIndex];
-
-            const targetContainer = document.getElementById('target-canvas-box');
-
-            render3DBlockFigure(
-                targetContainer,
-                trial.targetStruct,
-                trial.targetRot,
-                false
-            );
-
-            const container = document.getElementById('options-container');
-
-            // Es creen les quatre targetes una sola vegada i es reutilitzen:
-            // així cada targeta conserva el seu context WebGL entre ítems.
-            if (container.children.length !== 4) {
-                container.innerHTML = '';
-
-                for (let optIdx = 0; optIdx < 4; optIdx++) {
-                    const card = document.createElement('div');
-                    card.className = 'option-card';
-
-                    card.innerHTML = `
-                        <div class="option-id">${optIdx + 1}</div>
-                        <div class="canvas-container" id="opt-canvas-${optIdx}"></div>
-                    `;
-
-                    card.onclick = () => this.toggleOption(optIdx, card);
-                    container.appendChild(card);
-                }
-            }
-
-            trial.options.forEach((opt, optIdx) => {
-                const card = container.children[optIdx];
-                card.classList.remove('selected');
-
-                const optContainer = card.querySelector('.canvas-container');
-
-                render3DBlockFigure(
-                    optContainer,
-                    opt.struct,
-                    opt.rot,
-                    opt.mirrored
-                );
-            });
-
-            this.trialStartTime = performance.now();
-        }
-
-        toggleOption(idx, cardElement) {
-            const indexInSelected = this.selectedOptions.indexOf(idx);
-
-            if (indexInSelected > -1) {
-                this.selectedOptions.splice(indexInSelected, 1);
-                cardElement.classList.remove('selected');
-            } else {
-                if (this.selectedOptions.length < 2) {
-                    this.selectedOptions.push(idx);
-                    cardElement.classList.add('selected');
-                }
-            }
-
-            document.getElementById('btn-confirm').disabled =
-                this.selectedOptions.length !== 2;
-        }
-
-        submitTrial() {
-            const trialEndTime = performance.now();
-
-            const reactionTime =
-                (trialEndTime - this.trialStartTime) / 1000;
-
-            const currentTrial = this.trialsData[this.currentTrialIndex];
-
-            const sortedSelected = [...this.selectedOptions].sort();
-            const sortedCorrect = [...currentTrial.correct].sort();
-
-            const isFullyCorrect =
-                JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
-
-            let partialScore = 0;
-
-            this.selectedOptions.forEach(opt => {
-                if (currentTrial.correct.includes(opt)) {
-                    partialScore++;
-                }
-            });
-
-            this.results.push({
-                trial: this.currentTrialIndex + 1,
-                reactionTime: reactionTime.toFixed(2),
-                score: isFullyCorrect ? 2 : (partialScore === 1 ? 1 : 0),
-                correct: isFullyCorrect
-            });
-
-            this.currentTrialIndex++;
-
-            if (this.currentTrialIndex < this.totalItems) {
-                this.loadTrial();
-            } else {
-                this.showResults();
-            }
-        }
-
-        showResults() {
-            document.getElementById('view-task').classList.add('hidden');
-            document.getElementById('view-results').classList.remove('hidden');
-
-            document.getElementById('participant-summary').textContent =
-                `Participant: ${this.participant.name} | Sexe: ${this.participant.gender} | Lateralitat: ${this.participant.handedness}`;
-
-            const totalFullyCorrect =
-                this.results.filter(r => r.correct).length;
-
-            document.getElementById('final-score-text').textContent =
-                `Puntuació total (Ítems complets): ${totalFullyCorrect} / ${this.totalItems}`;
-
-            const tbody = document.getElementById('results-tbody');
-            tbody.innerHTML = '';
-
-            this.results.forEach(res => {
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-                    <td>${res.trial}</td>
-                    <td>${res.reactionTime} s</td>
-                    <td>${res.score} / 2</td>
-                    <td>${res.correct ? '✅ Correcte' : '❌ Incorrecte'}</td>
-                `;
-
-                tbody.appendChild(row);
-            });
-        }
-
-        downloadJSON() {
-            const dataObj = {
-                participant: this.participant,
-                results: this.results,
-                totalScore: this.results.filter(r => r.correct).length,
-                timestamp: new Date().toISOString()
-            };
-
-            const dataStr =
-                "data:text/json;charset=utf-8," +
-                encodeURIComponent(JSON.stringify(dataObj, null, 2));
-
-            const downloadAnchor = document.createElement('a');
-
-            downloadAnchor.setAttribute("href", dataStr);
-
-            downloadAnchor.setAttribute(
-                "download",
-                `mrt_3d_resultats_${this.participant.name.replace(/\s+/g, '_')}.json`
-            );
-
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
     }
 
-    const app = new MentalRotationApp3DComplete();
+
+    showResults() {
+
+        document.getElementById("view-task").classList.add("hidden");
+
+        document.getElementById("view-results").classList.remove("hidden");
+
+        document.getElementById("participant-summary").textContent =
+            "Participant: " + this.participant.name;
+
+        const total = this.results.filter(r => r.correct).length;
+
+        document.getElementById("final-score-text").textContent =
+            "Ítems completament correctes: " + total + " / " + this.totalItems;
+
+        const tbody = document.getElementById("results-tbody");
+
+        tbody.innerHTML = "";
+
+        this.results.forEach(result => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${result.item}</td>
+                <td>${result.time} s</td>
+                <td>${result.score} / 2</td>
+                <td>${result.correct ? "Correcte" : "Incorrecte"}</td>
+            `;
+
+            tbody.appendChild(row);
+
+        });
+
+    }
+
+
+    download() {
+
+        const data = {
+
+            participant: this.participant,
+
+            results: this.results,
+
+            totalScore: this.results.filter(r => r.correct).length,
+
+            date: new Date().toISOString()
+
+        };
+
+        const blob = new Blob(
+            [JSON.stringify(data, null, 2)],
+            {type: "application/json"}
+        );
+
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        link.download = "resultats_MRT_3D.json";
+
+        link.click();
+
+        URL.revokeObjectURL(url);
+
+    }
+
+}
+
+
+// Inici de l'aplicació.
+const app = new MentalRotationApp();
 
 </script>
 

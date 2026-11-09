@@ -495,6 +495,11 @@ function render3DFigure(container, shapeId, rotation, mirrored) {
 // Es limita la variació dels girs per facilitar la comparació.
 // Totes les opcions correctes són rotacions de la figura objectiu.
 
+
+// =====================================================
+// ROTACIONS I CONTROL D'OPCIONS DUPLICADES
+// =====================================================
+
 function generateTargetRotation() {
 
     return {
@@ -506,28 +511,271 @@ function generateTargetRotation() {
 }
 
 
-function generateEasyRotation(targetRotation) {
+// Barreja aleatòriament un array.
+function shuffleArray(array) {
 
-    // Girs senzills al voltant de l'eix vertical.
-    const turns = [
-        0,
-        Math.PI / 2,
-        Math.PI,
-        Math.PI * 1.5
-    ];
+    return [...array].sort(() => Math.random() - 0.5);
 
-    const turn = turns[
-        Math.floor(Math.random() * turns.length)
-    ];
+}
+
+
+// Calcula una identificació única de la figura
+// segons la seva estructura, reflexió i rotació.
+function getShapeKey(shape, mirrored, quarterTurn) {
+
+    const points = shape.map(position => {
+
+        let x = mirrored ? -position[0] : position[0];
+        let y = position[1];
+        let z = position[2];
+
+        // Rotacions de 90 graus sobre l'eix Y.
+        for (let i = 0; i < quarterTurn; i++) {
+
+            const oldX = x;
+
+            x = z;
+            z = -oldX;
+
+        }
+
+        return [x, y, z];
+
+    });
+
+    // Normalitzar la posició per eliminar diferències
+    // que només siguin una translació.
+    const minX = Math.min(...points.map(p => p[0]));
+    const minY = Math.min(...points.map(p => p[1]));
+    const minZ = Math.min(...points.map(p => p[2]));
+
+    const normalized = points.map(p => [
+        p[0] - minX,
+        p[1] - minY,
+        p[2] - minZ
+    ]);
+
+    normalized.sort((a, b) =>
+        a[0] - b[0] ||
+        a[1] - b[1] ||
+        a[2] - b[2]
+    );
+
+    return JSON.stringify(normalized);
+
+}
+
+
+// Genera la rotació visual corresponent.
+function generateEasyRotation(targetRotation, quarterTurn) {
 
     return {
+
         x: targetRotation.x,
-        y: targetRotation.y + turn,
+
+        y: targetRotation.y + quarterTurn * Math.PI / 2,
+
         z: targetRotation.z
+
     };
 
 }
 
+
+// =====================================================
+// APLICACIÓ
+// =====================================================
+
+class MentalRotationApp {
+
+    constructor() {
+
+        this.totalItems = 20;
+        this.currentTrial = 0;
+
+        this.participant = {};
+        this.results = [];
+        this.trials = [];
+
+        this.selected = [];
+        this.startTime = 0;
+
+        this.generateTrials();
+
+        this.initEvents();
+
+    }
+
+
+    generateTrials() {
+
+        for (let i = 0; i < this.totalItems; i++) {
+
+            const shapeId = i % MRT_SHAPES.length;
+
+            const shape = MRT_SHAPES[shapeId];
+
+            const targetRotation = generateTargetRotation();
+
+            // La figura original ja ocupa una orientació.
+            const usedKeys = new Set();
+
+            usedKeys.add(
+                getShapeKey(shape, false, 0)
+            );
+
+
+            // -----------------------------------------
+            // GENERAR DUES ROTACIONS CORRECTES
+            // -----------------------------------------
+
+            const correctCandidates = [];
+
+            for (let turn = 1; turn < 4; turn++) {
+
+                const key = getShapeKey(
+                    shape,
+                    false,
+                    turn
+                );
+
+                if (!usedKeys.has(key)) {
+
+                    correctCandidates.push({
+
+                        shapeId: shapeId,
+
+                        rotation: generateEasyRotation(
+                            targetRotation,
+                            turn
+                        ),
+
+                        mirrored: false,
+
+                        correct: true,
+
+                        key: key
+
+                    });
+
+                }
+
+            }
+
+
+            const selectedCorrect = shuffleArray(
+                correctCandidates
+            ).slice(0, 2);
+
+
+            // Registrar les dues opcions correctes.
+            selectedCorrect.forEach(option => {
+
+                usedKeys.add(option.key);
+
+            });
+
+
+            // -----------------------------------------
+            // GENERAR DUES IMATGES ESPECULARS
+            // -----------------------------------------
+
+            const mirrorCandidates = [];
+
+            for (let turn = 0; turn < 4; turn++) {
+
+                const key = getShapeKey(
+                    shape,
+                    true,
+                    turn
+                );
+
+                // No permetre cap figura equivalent
+                // a l'original ni a les altres opcions.
+                if (!usedKeys.has(key)) {
+
+                    mirrorCandidates.push({
+
+                        shapeId: shapeId,
+
+                        rotation: generateEasyRotation(
+                            targetRotation,
+                            turn
+                        ),
+
+                        mirrored: true,
+
+                        correct: false,
+
+                        key: key
+
+                    });
+
+                }
+
+            }
+
+
+            const selectedMirrors = shuffleArray(
+                mirrorCandidates
+            ).slice(0, 2);
+
+
+            // Comprovació de seguretat.
+            if (
+                selectedCorrect.length !== 2 ||
+                selectedMirrors.length !== 2
+            ) {
+
+                throw new Error(
+                    "No s'han pogut generar quatre opcions úniques per a la figura " +
+                    shapeId
+                );
+
+            }
+
+
+            // -----------------------------------------
+            // BARREJAR LES QUATRE OPCIONS
+            // -----------------------------------------
+
+            const options = shuffleArray([
+
+                ...selectedCorrect,
+
+                ...selectedMirrors
+
+            ]);
+
+
+            // Eliminar les claus internes.
+            options.forEach(option => {
+
+                delete option.key;
+
+            });
+
+
+            this.trials.push({
+
+                shapeId: shapeId,
+
+                targetRotation: targetRotation,
+
+                options: options,
+
+                correctPositions: options
+                    .map((option, index) =>
+                        option.correct ? index : -1
+                    )
+                    .filter(index => index !== -1)
+
+            });
+
+        }
+
+    }
+    
 
 // =====================================================
 // APLICACIÓ

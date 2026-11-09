@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mental Rotations Test (MRT 3D) - Vandenberg & Kuse</title>
+    <!-- Carreguem Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
@@ -166,12 +167,21 @@
 
         .canvas-container {
             width: 100%;
-            height: 210px;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .canvas-container canvas,
+        .target-canvas-container canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         .target-canvas-container {
             width: 100%;
-            height: 220px;
+            height: 270px;
+            overflow: hidden;
         }
 
         .results-table {
@@ -197,7 +207,6 @@
 <body>
 
 <div class="container">
-
     <!-- FASE 1: FORMULARI DE REGISTRE -->
     <div id="view-form">
         <h2>Mental Rotations Test (MRT 3D)</h2>
@@ -285,7 +294,6 @@
         <br>
         <button onclick="app.downloadJSON()">Descarregar Dades Analítiques (JSON)</button>
     </div>
-
 </div>
 
 <script>
@@ -300,13 +308,11 @@
         [[0,0,0],[0,0,1],[0,0,2],[0,1,1],[1,0,2]]
     ];
 
-    // Un únic context WebGL per cada espai de dibuix:
-    // evita esgotar els contextos del navegador.
+    // Un únic context WebGL per cada espai de dibuix: evita esgotar els contextos del navegador.
     const MRT_RENDERERS = new WeakMap();
 
     // Renderització amb perspectiva obliqua, il·luminació i cares diferenciades.
     function render3DBlockFigure(containerElement, structureType, rotObj, isMirrored) {
-
         if (!containerElement || !window.THREE) return;
 
         const width = Math.max(1, containerElement.clientWidth || 360);
@@ -315,112 +321,66 @@
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xffffff);
 
-        const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 100);
+        const camera = new THREE.PerspectiveCamera(27, width / height, 0.1, 100);
         camera.position.set(6.8, 5.4, 8.2);
         camera.lookAt(0, 0, 0);
 
         let renderer = MRT_RENDERERS.get(containerElement);
-
         if (!renderer) {
             containerElement.innerHTML = '';
-
             renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 alpha: false,
                 powerPreference: 'high-performance'
             });
-
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
+            renderer.setPixelRatio(Math.min((window.devicePixelRatio || 1) * 1.5, 3));
             if ('outputColorSpace' in renderer && THREE.SRGBColorSpace) {
                 renderer.outputColorSpace = THREE.SRGBColorSpace;
             }
-
             MRT_RENDERERS.set(containerElement, renderer);
             containerElement.appendChild(renderer.domElement);
         }
-
         renderer.setSize(width, height);
 
-        // Il·luminació ambiental i direccional.
-        scene.add(new THREE.AmbientLight(0xffffff, 1.15));
-
-        const keyLight = new THREE.DirectionalLight(0xffffff, 1.45);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+        const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
         keyLight.position.set(5, 8, 7);
         scene.add(keyLight);
-
-        const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.65);
+        const fillLight = new THREE.DirectionalLight(0xcbdcf5, 0.9);
         fillLight.position.set(-6, 2, -4);
         scene.add(fillLight);
+        const rimLight = new THREE.DirectionalLight(0xffffff, 0.55);
+        rimLight.position.set(2, -5, -6);
+        scene.add(rimLight);
 
         const group = new THREE.Group();
-
-        // Materials diferenciats per donar més volum a les cares.
         const materials = [
-            new THREE.MeshStandardMaterial({
-                color: 0x94a3b8,
-                roughness: 0.78,
-                metalness: 0.02
-            }),
-            new THREE.MeshStandardMaterial({
-                color: 0x64748b,
-                roughness: 0.78,
-                metalness: 0.02
-            }),
-            new THREE.MeshStandardMaterial({
-                color: 0xe2e8f0,
-                roughness: 0.78,
-                metalness: 0.02
-            }),
-            new THREE.MeshStandardMaterial({
-                color: 0x475569,
-                roughness: 0.78,
-                metalness: 0.02
-            }),
-            new THREE.MeshStandardMaterial({
-                color: 0xb8c5d6,
-                roughness: 0.78,
-                metalness: 0.02
-            }),
-            new THREE.MeshStandardMaterial({
-                color: 0x7c8da3,
-                roughness: 0.78,
-                metalness: 0.02
-            })
+            new THREE.MeshStandardMaterial({color: 0x8faed4, roughness: 0.88, metalness: 0}),
+            new THREE.MeshStandardMaterial({color: 0x6689b8, roughness: 0.88, metalness: 0}),
+            new THREE.MeshStandardMaterial({color: 0xd5e2f2, roughness: 0.88, metalness: 0}),
+            new THREE.MeshStandardMaterial({color: 0x496b9a, roughness: 0.88, metalness: 0}),
+            new THREE.MeshStandardMaterial({color: 0xa9c2e1, roughness: 0.88, metalness: 0}),
+            new THREE.MeshStandardMaterial({color: 0x7899c2, roughness: 0.88, metalness: 0})
         ];
 
         const cubeSize = 1.12;
         const spacing = 1.12;
-
         const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
         const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
-        const edgesMaterial = new THREE.LineBasicMaterial({
-            color: 0x172033
-        });
+        const edgesMaterial = new THREE.LineBasicMaterial({color: 0x111827, linewidth: 2});
 
-        const shape = MRT_SHAPES[
-            ((structureType % MRT_SHAPES.length) + MRT_SHAPES.length) % MRT_SHAPES.length
-        ];
-
+        const shape = MRT_SHAPES[((structureType % MRT_SHAPES.length) + MRT_SHAPES.length) % MRT_SHAPES.length];
         shape.forEach(pos => {
-
             const mesh = new THREE.Mesh(cubeGeo, materials);
-
             const wireframe = new THREE.LineSegments(edgesGeo, edgesMaterial);
             mesh.add(wireframe);
 
             const x = (isMirrored ? -pos[0] : pos[0]) * spacing;
-
-            mesh.position.set(
-                x,
-                pos[1] * spacing,
-                pos[2] * spacing
-            );
-
+            mesh.position.set(x, pos[1] * spacing, pos[2] * spacing);
             group.add(mesh);
         });
 
-        // La mateixa rotació s'aplica a tots els cubs.
+        // La mateixa matriu de rotació s'aplica a tots els cubs: no hi ha deformació.
         group.rotation.order = 'XYZ';
         group.rotation.set(rotObj.x, rotObj.y, rotObj.z, 'XYZ');
 
@@ -429,30 +389,22 @@
         // Centra i escala la figura segons les seves dimensions reals.
         const bounds = new THREE.Box3().setFromObject(group);
         const center = bounds.getCenter(new THREE.Vector3());
-
         group.position.sub(center);
-
         const size = bounds.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-
-        const fitScale = 3.25 / Math.max(maxDim, 0.1);
+        const fitScale = 4.7 / Math.max(maxDim, 0.1);
         group.scale.setScalar(fitScale);
 
         renderer.render(scene, camera);
 
-        // Allibera les geometries i els materials,
-        // però conserva el context WebGL.
+        // Allibera geometries i materials d'aquest assaig, però conserva el context WebGL.
         cubeGeo.dispose();
         edgesGeo.dispose();
-
         materials.forEach(material => material.dispose());
-
         edgesMaterial.dispose();
     }
 
-
     class MentalRotationApp3DComplete {
-
         constructor() {
             this.participant = {};
             this.totalItems = 20;
@@ -468,8 +420,9 @@
 
 
         initTrialsDataset() {
-
-            // Genera una orientació tridimensional aleatòria.
+            // Cada ítem utilitza una estructura 3D base, amb dues rotacions
+            // pròpies i dues versions especulars. Les opcions correctes són
+            // congruents amb l'objectiu; les especulars no es poden obtenir girant-lo.
             const random3DRotation = () => ({
                 x: 0.38 + Math.random() * 2.35,
                 y: 0.38 + Math.random() * 2.35,
@@ -477,22 +430,18 @@
             });
 
             for (let i = 0; i < this.totalItems; i++) {
-
                 const structId = i % MRT_SHAPES.length;
                 const targetRot = random3DRotation();
 
-                // Selecció aleatòria de les dues respostes correctes.
+                // Distribució equilibrada i aleatòria de les dues respostes correctes.
                 const correctIndices = [0, 1, 2, 3]
                     .sort(() => Math.random() - 0.5)
                     .slice(0, 2)
                     .sort((a, b) => a - b);
 
                 const optionsArr = [];
-
                 for (let opt = 0; opt < 4; opt++) {
-
                     const isCorrect = correctIndices.includes(opt);
-
                     optionsArr.push({
                         struct: structId,
                         rot: random3DRotation(),
@@ -509,149 +458,92 @@
             }
         }
 
-
         initEventListeners() {
-
-            document.getElementById('participant-form')
-                .addEventListener('submit', (e) => {
-
-                    e.preventDefault();
-
-                    this.participant = {
-                        name: document.getElementById('name').value,
-                        dob: document.getElementById('dob').value,
-                        handedness: document.getElementById('handedness').value,
-                        gender: document.getElementById('gender').value
-                    };
-
-                    this.startTask();
-                });
+            document.getElementById('participant-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.participant = {
+                    name: document.getElementById('name').value,
+                    dob: document.getElementById('dob').value,
+                    handedness: document.getElementById('handedness').value,
+                    gender: document.getElementById('gender').value
+                };
+                this.startTask();
+            });
         }
 
-
         startTask() {
-
             document.getElementById('view-form').classList.add('hidden');
             document.getElementById('view-task').classList.remove('hidden');
-
             document.getElementById('total-trials').textContent = this.totalItems;
-
             this.loadTrial();
         }
 
-
         loadTrial() {
-
             this.selectedOptions = [];
-
             document.getElementById('btn-confirm').disabled = true;
-
-            document.getElementById('current-trial').textContent =
-                this.currentTrialIndex + 1;
+            document.getElementById('current-trial').textContent = this.currentTrialIndex + 1;
 
             const trial = this.trialsData[this.currentTrialIndex];
 
-            // Renderitza la figura objectiu.
             const targetContainer = document.getElementById('target-canvas-box');
-
-            render3DBlockFigure(
-                targetContainer,
-                trial.targetStruct,
-                trial.targetRot,
-                false
-            );
+            render3DBlockFigure(targetContainer, trial.targetStruct, trial.targetRot, false);
 
             const container = document.getElementById('options-container');
 
-            // Es creen les quatre targetes una sola vegada i es reutilitzen.
-            // Això permet conservar els contextos WebGL entre ítems.
+            // Es creen les quatre targetes una sola vegada i es reutilitzen:
+            // així cada targeta conserva el seu context WebGL entre ítems.
             if (container.children.length !== 4) {
-
                 container.innerHTML = '';
-
                 for (let optIdx = 0; optIdx < 4; optIdx++) {
-
                     const card = document.createElement('div');
-
                     card.className = 'option-card';
-
                     card.innerHTML = `
                         <div class="option-id">${optIdx + 1}</div>
                         <div class="canvas-container" id="opt-canvas-${optIdx}"></div>
                     `;
-
                     card.onclick = () => this.toggleOption(optIdx, card);
-
                     container.appendChild(card);
                 }
             }
 
-            // Renderitza les quatre opcions.
             trial.options.forEach((opt, optIdx) => {
-
                 const card = container.children[optIdx];
-
                 card.classList.remove('selected');
-
                 const optContainer = card.querySelector('.canvas-container');
-
-                render3DBlockFigure(
-                    optContainer,
-                    opt.struct,
-                    opt.rot,
-                    opt.mirrored
-                );
+                render3DBlockFigure(optContainer, opt.struct, opt.rot, opt.mirrored);
             });
 
             this.trialStartTime = performance.now();
         }
 
-
         toggleOption(idx, cardElement) {
-
             const indexInSelected = this.selectedOptions.indexOf(idx);
 
             if (indexInSelected > -1) {
-
                 this.selectedOptions.splice(indexInSelected, 1);
                 cardElement.classList.remove('selected');
-
             } else {
-
                 if (this.selectedOptions.length < 2) {
-
                     this.selectedOptions.push(idx);
                     cardElement.classList.add('selected');
                 }
             }
 
-            document.getElementById('btn-confirm').disabled =
-                this.selectedOptions.length !== 2;
+            document.getElementById('btn-confirm').disabled = this.selectedOptions.length !== 2;
         }
 
-
         submitTrial() {
-
             const trialEndTime = performance.now();
-
-            const reactionTime =
-                (trialEndTime - this.trialStartTime) / 1000;
-
+            const reactionTime = (trialEndTime - this.trialStartTime) / 1000;
             const currentTrial = this.trialsData[this.currentTrialIndex];
 
             const sortedSelected = [...this.selectedOptions].sort();
             const sortedCorrect = [...currentTrial.correct].sort();
-
-            const isFullyCorrect =
-                JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
+            const isFullyCorrect = JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
 
             let partialScore = 0;
-
             this.selectedOptions.forEach(opt => {
-
-                if (currentTrial.correct.includes(opt)) {
-                    partialScore++;
-                }
+                if (currentTrial.correct.includes(opt)) partialScore++;
             });
 
             this.results.push({
@@ -662,85 +554,56 @@
             });
 
             this.currentTrialIndex++;
-
             if (this.currentTrialIndex < this.totalItems) {
-
                 this.loadTrial();
-
             } else {
-
                 this.showResults();
             }
         }
 
-
         showResults() {
-
             document.getElementById('view-task').classList.add('hidden');
             document.getElementById('view-results').classList.remove('hidden');
 
-            document.getElementById('participant-summary').textContent =
+            document.getElementById('participant-summary').textContent = 
                 `Participant: ${this.participant.name} | Sexe: ${this.participant.gender} | Lateralitat: ${this.participant.handedness}`;
 
-            const totalFullyCorrect =
-                this.results.filter(r => r.correct).length;
-
-            document.getElementById('final-score-text').textContent =
-                `Puntuació total (Ítems complets): ${totalFullyCorrect} / ${this.totalItems}`;
+            const totalFullyCorrect = this.results.filter(r => r.correct).length;
+            document.getElementById('final-score-text').textContent = `Puntuació total (Ítems complets): ${totalFullyCorrect} / ${this.totalItems}`;
 
             const tbody = document.getElementById('results-tbody');
-
             tbody.innerHTML = '';
 
             this.results.forEach(res => {
-
                 const row = document.createElement('tr');
-
                 row.innerHTML = `
                     <td>${res.trial}</td>
                     <td>${res.reactionTime} s</td>
                     <td>${res.score} / 2</td>
                     <td>${res.correct ? '✅ Correcte' : '❌ Incorrecte'}</td>
                 `;
-
                 tbody.appendChild(row);
             });
         }
 
-
         downloadJSON() {
-
             const dataObj = {
                 participant: this.participant,
                 results: this.results,
                 totalScore: this.results.filter(r => r.correct).length,
                 timestamp: new Date().toISOString()
             };
-
-            const dataStr =
-                "data:text/json;charset=utf-8," +
-                encodeURIComponent(JSON.stringify(dataObj, null, 2));
-
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj, null, 2));
             const downloadAnchor = document.createElement('a');
-
             downloadAnchor.setAttribute("href", dataStr);
-
-            downloadAnchor.setAttribute(
-                "download",
-                `mrt_3d_resultats_${this.participant.name.replace(/\s+/g, '_')}.json`
-            );
-
+            downloadAnchor.setAttribute("download", `mrt_3d_resultats_${this.participant.name.replace(/\s+/g, '_')}.json`);
             document.body.appendChild(downloadAnchor);
-
             downloadAnchor.click();
-
             downloadAnchor.remove();
         }
     }
 
-
     const app = new MentalRotationApp3DComplete();
-
 </script>
 
 </body>

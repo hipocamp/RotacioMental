@@ -1,0 +1,1518 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mental Rotations Test 3D</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+:root {
+    --primary: #0f172a;
+    --secondary: #0284c7;
+    --bg: #f1f5f9;
+    --border: #cbd5e1;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--primary);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.1);
+    width: 100%;
+    max-width: 850px;
+    align-self: flex-start;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.subtitle {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--secondary);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: bold;
+}
+
+.target-box {
+    border: 2px solid #94a3b8;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.target-label {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.target-canvas-container {
+    width: 100%;
+    height: 260px;
+    position: relative;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 15px 0 20px;
+}
+
+.option-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    position: relative;
+    cursor: pointer;
+    background: white;
+}
+
+.option-card:hover {
+    border-color: var(--secondary);
+}
+
+.option-card.selected {
+    border-color: var(--secondary);
+    background: #e0f2fe;
+    box-shadow: 0 0 0 2px rgba(2,132,199,.15);
+}
+
+.option-id {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-weight: bold;
+    z-index: 2;
+}
+
+.canvas-container {
+    width: 100%;
+    height: 225px;
+    position: relative;
+}
+
+.canvas-container canvas,
+.target-canvas-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.error-message {
+    color: #b91c1c;
+    background: #fee2e2;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.results-table th,
+.results-table td {
+    border: 1px solid #e2e8f0;
+    padding: 9px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.results-table th {
+    background: #f1f5f9;
+}
+
+@media(max-width: 520px) {
+    .container {
+        padding: 15px;
+    }
+
+    .canvas-container {
+        height: 180px;
+    }
+
+    .target-canvas-container {
+        height: 220px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- INFORMACIÓ I CONSENTIMENT -->
+    <section id="view-intro">
+        <h2>Test de rotació mental</h2>
+        <p style="line-height:1.7;white-space:pre-line">El test que faràs a continuació avalua la capacitat de rotació mental. És molt important que el facis en un entorn tranquil i amb concentració. Els resultats del test els pots descarregar a l'acabar. Si ens els envies, farem anàlisis, amb dades agregades i anonimitzades. Si dones el teu vist-i-plau, prem continuar</p>
+        <button type="button" id="btn-consent">Continuar</button>
+        <button type="button" id="btn-history" style="margin-top:12px;background:#334155">Consultar resultats guardats</button>
+        <button type="button" id="btn-resume" class="hidden" style="margin-top:12px;background:#0f766e">Reprendre prova interrompuda</button>
+    </section>
+
+    <div id="local-warning" role="alert" class="error-message"></div>
+    <section id="view-history" class="hidden">
+        <h2>Resultats desats en aquest dispositiu</h2>
+        <p>Les proves completades es conserven en aquest navegador. Pots consultar-les i descarregar-les individualment o fer una còpia de seguretat de totes.</p>
+        <label for="search-participant">Cerca per codi de participant (4 dígits) o nom</label>
+        <input id="search-participant" type="search" placeholder="Ex.: 0042 o nom del participant" autocomplete="off">
+        <p id="history-count" role="status"></p>
+        <div id="history-list"></div>
+        <button type="button" id="btn-export-all" style="margin-top:12px">Descarregar còpia de tots els resultats (JSON)</button>
+        <label for="import-file" style="margin-top:16px">Restaurar una còpia de seguretat JSON</label>
+        <input type="file" id="import-file" accept=".json,application/json">
+        <button type="button" id="btn-history-back" style="margin-top:12px;background:#334155">Tornar a l'inici</button>
+    </section>
+    <!-- FORMULARI -->
+    <div id="view-form" class="hidden">
+
+        <h2>Mental Rotations Test (MRT 3D)</h2>
+
+        <p class="subtitle">
+            Adaptació experimental basada en Vandenberg & Kuse (1978)
+        </p>
+
+        <form id="participant-form">
+
+            <div class="form-group">
+                <label for="name">Nom / Identificador:</label>
+                <input type="text" id="name" required placeholder="Ex: P001">
+            </div>
+
+            <div class="form-group">
+                <label for="participant-code">Codi de participant (4 dígits):</label>
+                <input type="text" id="participant-code" required inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="off" placeholder="Ex.: 0042" title="Introdueix exactament quatre dígits">
+                <p style="font-size:14px;color:#475569;margin:7px 0 0">Recorda aquest codi, perquè el faràs servir en altres tests de l'assignatura.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="dob">Data de naixement:</label>
+                <input type="date" id="dob" required>
+            </div>
+
+            <div class="form-group">
+                <label for="handedness">Dominància manual:</label>
+                <select id="handedness" required>
+                    <option value="">Selecciona...</option>
+                    <option value="Dretà">Dretà/na</option>
+                    <option value="Esquerrà">Esquerrà/ana</option>
+                    <option value="Ambidextre">Ambidextre/a</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Sexe:</label>
+                <select id="gender" required>
+                    <option value="">Selecciona...</option>
+                    <option value="Masculí">Masculí</option>
+                    <option value="Femení">Femení</option>
+                    <option value="No respon">Prefereixo no respondre</option>
+                </select>
+            </div>
+
+            <button type="submit">Iniciar prova 3D</button>
+
+            <div id="form-error" class="error-message"></div>
+
+        </form>
+    </div>
+
+
+    <!-- PROVA -->
+    <div id="view-task" class="hidden">
+
+        <div class="task-header">
+            <span>Ítem <span id="current-trial">1</span> / 20</span>
+            <span>Selecciona les 2 figures correctes</span>
+        </div>
+
+        <div class="target-box">
+            <div class="target-label">FIGURA OBJECTIU</div>
+            <div id="target-canvas-box" class="target-canvas-container"></div>
+        </div>
+
+        <p style="text-align:center;font-size:14px;">
+            Selecciona les dues figures que representen la mateixa estructura
+            girada. No seleccionis les figures reflectides en mirall.
+        </p>
+
+        <div class="options-grid" id="options-container"></div>
+
+        <button id="btn-confirm" disabled>
+            Confirmar resposta
+        </button>
+
+    </div>
+
+
+    <!-- RESULTATS -->
+    <div id="view-results" class="hidden">
+
+        <h2>Resultats de la prova</h2>
+
+        <p id="participant-summary" style="text-align:center;"></p>
+
+        <div style="background:#f1f5f9;padding:15px;text-align:center;border-radius:8px;">
+            <strong id="final-score-text"></strong>
+        </div>
+
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Temps</th>
+                    <th>Encerts</th>
+                    <th>Resultat</th>
+                </tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+        </table>
+
+        <p id="save-status" role="status" style="color:#166534;font-weight:bold"></p>
+        <button type="button" id="btn-home" style="margin:12px 0;background:#334155">Tornar a la pantalla principal</button>
+        <button id="download-button">
+            Descarregar resultats JSON
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+// =====================================================
+// ESTRUCTURES 3D
+// =====================================================
+
+const MRT_SHAPES = [
+
+    [[0,0,0],[1,0,0],[1,0,1],[1,1,0],[2,0,1]],
+
+    [[0,0,1],[1,0,0],[1,0,1],[2,0,1],[2,1,1]],
+
+    [[0,0,0],[0,0,1],[0,1,1],[1,0,0],[2,0,0]],
+
+    [[0,0,0],[0,0,1],[1,0,1],[1,1,1],[2,1,1]],
+
+    [[0,0,0],[0,0,1],[0,0,2],[0,1,1],[1,0,2]]
+
+];
+
+
+// Un renderer per contenidor.
+const RENDERERS = new WeakMap();
+
+
+// =====================================================
+// GENERAR LES 24 ROTACIONS POSSIBLES
+// =====================================================
+
+function generateAllCubeRotations() {
+
+    const rotations = [];
+
+    const permutations = [
+        [0,1,2],
+        [0,2,1],
+        [1,0,2],
+        [1,2,0],
+        [2,0,1],
+        [2,1,0]
+    ];
+
+    const signs = [-1, 1];
+
+    permutations.forEach(permutation => {
+
+        signs.forEach(sx => {
+            signs.forEach(sy => {
+                signs.forEach(sz => {
+
+                    const matrix = [
+                        [0,0,0],
+                        [0,0,0],
+                        [0,0,0]
+                    ];
+
+                    matrix[0][permutation[0]] = sx;
+                    matrix[1][permutation[1]] = sy;
+                    matrix[2][permutation[2]] = sz;
+
+                    const determinant =
+                        matrix[0][0] * (
+                            matrix[1][1] * matrix[2][2] -
+                            matrix[1][2] * matrix[2][1]
+                        ) -
+                        matrix[0][1] * (
+                            matrix[1][0] * matrix[2][2] -
+                            matrix[1][2] * matrix[2][0]
+                        ) +
+                        matrix[0][2] * (
+                            matrix[1][0] * matrix[2][1] -
+                            matrix[1][1] * matrix[2][0]
+                        );
+
+                    if (determinant === 1) {
+                        rotations.push(matrix);
+                    }
+
+                });
+            });
+        });
+
+    });
+
+    return rotations;
+
+}
+
+const CUBE_ROTATIONS = generateAllCubeRotations();
+
+
+// =====================================================
+// IDENTIFICAR UNA FIGURA 3D
+// =====================================================
+
+function getShapeKey(shape, mirrored, matrix) {
+
+    const points = shape.map(position => {
+
+        const x = mirrored ? -position[0] : position[0];
+        const y = position[1];
+        const z = position[2];
+
+        return [
+
+            matrix[0][0] * x + matrix[0][1] * y + matrix[0][2] * z,
+
+            matrix[1][0] * x + matrix[1][1] * y + matrix[1][2] * z,
+
+            matrix[2][0] * x + matrix[2][1] * y + matrix[2][2] * z
+
+        ];
+
+    });
+
+    const minX = Math.min(...points.map(p => p[0]));
+    const minY = Math.min(...points.map(p => p[1]));
+    const minZ = Math.min(...points.map(p => p[2]));
+
+    const normalized = points.map(p => [
+        p[0] - minX,
+        p[1] - minY,
+        p[2] - minZ
+    ]);
+
+    normalized.sort((a, b) =>
+        a[0] - b[0] ||
+        a[1] - b[1] ||
+        a[2] - b[2]
+    );
+
+    return JSON.stringify(normalized);
+
+}
+
+
+// =====================================================
+// BARREJAR ELEMENTS
+// =====================================================
+
+function shuffleArray(array) {
+
+    const result = [...array];
+
+    for (let i = result.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [result[i], result[j]] = [result[j], result[i]];
+
+    }
+
+    return result;
+
+}
+
+
+// =====================================================
+// ROTACIÓ DE LA FIGURA OBJECTIU
+// =====================================================
+
+function generateTargetRotation() {
+
+    return {
+        x: Math.PI / 5,
+        y: Math.PI / 6,
+        z: 0
+    };
+
+}
+
+
+// =====================================================
+// CONVERTIR UNA MATRIU EN ROTACIÓ THREE.JS
+// =====================================================
+
+function generateOptionRotation(targetRotation, matrix) {
+
+    const matrix4 = new THREE.Matrix4();
+
+    matrix4.set(
+
+        matrix[0][0], matrix[0][1], matrix[0][2], 0,
+        matrix[1][0], matrix[1][1], matrix[1][2], 0,
+        matrix[2][0], matrix[2][1], matrix[2][2], 0,
+        0, 0, 0, 1
+
+    );
+
+    const targetQuaternion = new THREE.Quaternion()
+        .setFromEuler(
+            new THREE.Euler(
+                targetRotation.x,
+                targetRotation.y,
+                targetRotation.z,
+                "XYZ"
+            )
+        );
+
+    const optionQuaternion = new THREE.Quaternion()
+        .setFromRotationMatrix(matrix4);
+
+    targetQuaternion.multiply(optionQuaternion);
+
+    const finalEuler = new THREE.Euler()
+        .setFromQuaternion(targetQuaternion, "XYZ");
+
+    return {
+        x: finalEuler.x,
+        y: finalEuler.y,
+        z: finalEuler.z
+    };
+
+}
+
+
+// =====================================================
+// OBTENIR O CREAR EL RENDERER
+// =====================================================
+
+function createRenderer(container) {
+
+    let renderer = RENDERERS.get(container);
+
+    // Si el context WebGL s'ha perdut, crear un renderer nou.
+    if (
+        renderer &&
+        renderer.getContext().isContextLost()
+    ) {
+
+        try {
+            renderer.dispose();
+        } catch (e) {}
+
+        container.innerHTML = "";
+
+        RENDERERS.delete(container);
+
+        renderer = null;
+
+    }
+
+    if (!renderer) {
+
+        renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: false,
+            powerPreference: "high-performance"
+        });
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio || 1, 2)
+        );
+
+        renderer.setClearColor(0xffffff);
+
+        renderer.domElement.style.width = "100%";
+        renderer.domElement.style.height = "100%";
+
+        container.appendChild(renderer.domElement);
+
+        RENDERERS.set(container, renderer);
+
+    }
+
+    return renderer;
+
+}
+
+
+// =====================================================
+// DIBUIXAR FIGURA 3D
+// =====================================================
+
+function render3DFigure(container, shapeId, rotation, mirrored) {
+
+    if (!container || !window.THREE) {
+        throw new Error("No s'ha pogut carregar Three.js.");
+    }
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    if (width <= 0 || height <= 0) {
+        throw new Error("El contenidor 3D encara no té dimensions.");
+    }
+
+    const scene = new THREE.Scene();
+
+    scene.background = new THREE.Color(0xffffff);
+
+    const camera = new THREE.PerspectiveCamera(
+        32,
+        width / height,
+        0.1,
+        100
+    );
+
+    camera.position.set(7, 6, 8);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = createRenderer(container);
+
+    renderer.setSize(width, height, false);
+
+    scene.add(
+        new THREE.AmbientLight(0xffffff, 0.85)
+    );
+
+    const light1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    light1.position.set(5, 8, 7);
+    scene.add(light1);
+
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.35);
+    light2.position.set(-5, 3, -5);
+    scene.add(light2);
+
+    const group = new THREE.Group();
+
+    const geometry = new THREE.BoxGeometry(1.08, 1.08, 1.08);
+
+    const material = new THREE.MeshPhongMaterial({
+        color: 0x78a9e0,
+        specular: 0x334455,
+        shininess: 8,
+        flatShading: true
+    });
+
+    const edgeGeometry = new THREE.EdgesGeometry(geometry);
+
+    const edgeMaterial = new THREE.LineBasicMaterial({
+        color: 0x172b43
+    });
+
+    MRT_SHAPES[shapeId].forEach(position => {
+
+        const cube = new THREE.Mesh(geometry, material);
+
+        const edges = new THREE.LineSegments(
+            edgeGeometry,
+            edgeMaterial
+        );
+
+        cube.add(edges);
+
+        const x = mirrored ? -position[0] : position[0];
+
+        cube.position.set(
+            x * 1.08,
+            position[1] * 1.08,
+            position[2] * 1.08
+        );
+
+        group.add(cube);
+
+    });
+
+    group.rotation.order = "XYZ";
+
+    group.rotation.set(
+        rotation.x,
+        rotation.y,
+        rotation.z
+    );
+
+    scene.add(group);
+
+    // Centrar la figura.
+    const bounds = new THREE.Box3().setFromObject(group);
+
+    const center = bounds.getCenter(new THREE.Vector3());
+
+    group.position.sub(center);
+
+    const size = bounds.getSize(new THREE.Vector3());
+
+    const maxDimension = Math.max(
+        size.x,
+        size.y,
+        size.z
+    );
+
+    group.scale.setScalar(3.8 / maxDimension);
+
+    // Renderitzar i assegurar que un canvas ocult en l'ítem anterior
+    // torna a ser visible després de dibuixar la figura nova.
+    renderer.domElement.style.visibility = "visible";
+    renderer.render(scene, camera);
+
+    // Alliberar recursos de la figura.
+    geometry.dispose();
+    edgeGeometry.dispose();
+    material.dispose();
+    edgeMaterial.dispose();
+
+}
+
+
+// =====================================================
+// APLICACIÓ
+// =====================================================
+
+class MentalRotationApp {
+
+    constructor() {
+
+        this.totalItems = 20;
+        this.currentTrial = 0;
+
+        this.participant = {};
+        this.results = [];
+        this.trials = [];
+
+        this.selected = [];
+        this.startTime = 0;
+
+        this.optionCards = [];
+
+        this.generateTrials();
+
+        this.initEvents();
+        this.refreshResumeButton();
+
+    }
+
+
+    // =================================================
+    // GENERAR ELS 20 ÍTEMS
+    // =================================================
+
+    generateTrials() {
+
+        for (let i = 0; i < this.totalItems; i++) {
+
+            const shapeId = i % MRT_SHAPES.length;
+            const shape = MRT_SHAPES[shapeId];
+
+            const targetRotation = generateTargetRotation();
+
+            const usedKeys = new Set();
+
+            const identityMatrix = [
+                [1,0,0],
+                [0,1,0],
+                [0,0,1]
+            ];
+
+            usedKeys.add(
+                getShapeKey(shape, false, identityMatrix)
+            );
+
+
+            // Dues opcions correctes.
+            const correctCandidates = [];
+
+            CUBE_ROTATIONS.forEach(matrix => {
+
+                const key = getShapeKey(shape, false, matrix);
+
+                if (!usedKeys.has(key)) {
+
+                    correctCandidates.push({
+                        shapeId: shapeId,
+                        rotation: generateOptionRotation(targetRotation, matrix),
+                        mirrored: false,
+                        correct: true,
+                        key: key
+                    });
+
+                }
+
+            });
+
+            const selectedCorrect = shuffleArray(
+                correctCandidates
+            ).slice(0, 2);
+
+            selectedCorrect.forEach(option => {
+                usedKeys.add(option.key);
+            });
+
+
+            // Dues opcions especulars.
+            const mirrorCandidates = [];
+
+            CUBE_ROTATIONS.forEach(matrix => {
+
+                const key = getShapeKey(shape, true, matrix);
+
+                if (!usedKeys.has(key)) {
+
+                    mirrorCandidates.push({
+                        shapeId: shapeId,
+                        rotation: generateOptionRotation(targetRotation, matrix),
+                        mirrored: true,
+                        correct: false,
+                        key: key
+                    });
+
+                }
+
+            });
+
+            const selectedMirrors = shuffleArray(
+                mirrorCandidates
+            ).slice(0, 2);
+
+
+            if (
+                selectedCorrect.length !== 2 ||
+                selectedMirrors.length !== 2
+            ) {
+                throw new Error(
+                    "No s'han pogut generar quatre opcions úniques per a l'ítem " +
+                    (i + 1)
+                );
+            }
+
+
+            const options = shuffleArray([
+                ...selectedCorrect,
+                ...selectedMirrors
+            ]);
+
+            options.forEach(option => {
+                delete option.key;
+            });
+
+            this.trials.push({
+                shapeId: shapeId,
+                targetRotation: targetRotation,
+                options: options,
+                correctPositions: options
+                    .map((option, index) =>
+                        option.correct ? index : -1
+                    )
+                    .filter(index => index !== -1)
+            });
+
+        }
+
+    }
+
+
+    // =================================================
+    // ESDEVENIMENTS
+    // =================================================
+
+    // Desament persistent, limitat a aquest navegador i origen web.
+    storageKey = "mrt3d_records_v2";
+    pendingKey = "mrt3d_pending_v2";
+
+    getSaved() {
+        try {
+            const data = JSON.parse(localStorage.getItem(this.storageKey) || "[]");
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            this.storageWarning("No s'han pogut llegir els resultats locals. No esborris les dades del navegador.");
+            return [];
+        }
+    }
+
+    storageWarning(message) {
+        const el = document.getElementById("local-warning");
+        el.textContent = message;
+        el.style.display = "block";
+        alert(message);
+    }
+
+    persist(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+            return true;
+        } catch (e) {
+            this.storageWarning("No s'han pogut desar les dades en aquest navegador. Comprova l'espai disponible i que no estiguis en mode privat. Descarrega una còpia abans de sortir.");
+            return false;
+        }
+    }
+
+    currentData() {
+        return {
+            id: this.sessionId,
+            test: "MRT 3D",
+            participant: {...this.participant},
+            consentAccepted: this.consentGiven === true,
+            results: this.results.map(r => ({...r})),
+            totalScore: this.results.filter(r => r.correct).length,
+            date: new Date().toISOString(),
+            completed: this.currentTrial >= this.totalItems
+        };
+    }
+
+    saveProgress() {
+        return this.persist(this.pendingKey, {
+            ...this.currentData(),
+            currentTrial: this.currentTrial,
+            trials: this.trials
+        });
+    }
+
+    saveCompleted() {
+        const record = this.currentData();
+        record.completed = true;
+        const saved = this.getSaved();
+        const index = saved.findIndex(r => r.id === record.id);
+        if (index >= 0) saved[index] = record;
+        else saved.push(record);
+        if (!this.persist(this.storageKey, saved)) return false;
+        try { localStorage.removeItem(this.pendingKey); } catch(e) {}
+        this.refreshResumeButton();
+        return true;
+    }
+
+    refreshResumeButton() {
+        const pending = localStorage.getItem(this.pendingKey);
+        document.getElementById("btn-resume").classList.toggle("hidden", !pending);
+    }
+
+    resume() {
+        try {
+            const pending = JSON.parse(localStorage.getItem(this.pendingKey));
+            if (!pending || !Array.isArray(pending.trials) || !Array.isArray(pending.results) ||
+                pending.currentTrial >= this.totalItems) throw new Error("Invalid");
+            this.sessionId = pending.id;
+            this.participant = pending.participant;
+            this.consentGiven = pending.consentAccepted;
+            this.trials = pending.trials;
+            this.results = pending.results;
+            this.currentTrial = pending.currentTrial;
+            document.getElementById("view-intro").classList.add("hidden");
+            document.getElementById("view-form").classList.add("hidden");
+            document.getElementById("view-task").classList.remove("hidden");
+            this.createOptionCards();
+            this.loadTrial();
+        } catch(e) {
+            this.storageWarning("No s'ha pogut recuperar la prova interrompuda.");
+        }
+    }
+
+    home() {
+        this.viewedRecord = null;
+        document.getElementById("view-results").classList.add("hidden");
+        document.getElementById("view-history").classList.add("hidden");
+        document.getElementById("view-form").classList.add("hidden");
+        document.getElementById("view-task").classList.add("hidden");
+        document.getElementById("view-intro").classList.remove("hidden");
+        document.getElementById("participant-form").reset();
+        this.consentGiven = false;
+        this.currentTrial = 0;
+        this.results = [];
+        this.selected = [];
+        this.trials = [];
+        this.generateTrials();
+        this.refreshResumeButton();
+    }
+
+    downloadRecord(data, filename) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }
+
+    showHistory() {
+        document.getElementById("view-intro").classList.add("hidden");
+        document.getElementById("view-results").classList.add("hidden");
+        document.getElementById("view-history").classList.remove("hidden");
+        this.renderHistory();
+    }
+
+    renderHistory() {
+        const list = document.getElementById("history-list");
+        list.replaceChildren();
+        const search = document.getElementById("search-participant").value.trim().toLocaleLowerCase("ca");
+        const records = this.getSaved().slice().reverse().filter(r =>
+            !search || String(r.participant?.code || "").includes(search) ||
+            String(r.participant?.name || "").toLocaleLowerCase("ca").includes(search));
+        document.getElementById("history-count").textContent =
+            records.length + " prova(es) trobada(es).";
+        if (!records.length) list.textContent = "No hi ha resultats per a aquesta cerca.";
+        records.forEach(r => {
+            const row = document.createElement("div");
+            row.style.cssText = "padding:12px;margin:8px 0;border:1px solid #cbd5e1;border-radius:8px";
+            const title = document.createElement("p");
+            title.textContent = "Participant: " + (r.participant?.name || "Sense nom") +
+                " · Codi: " + (r.participant?.code || "?") +
+                " · " + (r.date ? new Date(r.date).toLocaleString("ca-ES") : "") +
+                " · " + (r.totalScore ?? "?") + "/20";
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = "Veure la taula de resultats";
+            btn.addEventListener("click", () => this.openSavedResult(r));
+            row.append(title, btn);
+            list.appendChild(row);
+        });
+    }
+
+    openSavedResult(record) {
+        this.viewedRecord = record;
+        document.getElementById("view-history").classList.add("hidden");
+        document.getElementById("view-results").classList.remove("hidden");
+        document.getElementById("participant-summary").textContent =
+            "Participant: " + (record.participant?.name || "") +
+            " · Codi: " + (record.participant?.code || "") +
+            " · " + (record.date ? new Date(record.date).toLocaleString("ca-ES") : "");
+        document.getElementById("final-score-text").textContent =
+            "Ítems completament correctes: " +
+            (record.totalScore ?? record.results.filter(r => r.correct).length) +
+            " / " + record.results.length;
+        document.getElementById("save-status").textContent =
+            "Resultat recuperat directament del desament local.";
+        const tbody = document.getElementById("results-tbody");
+        tbody.replaceChildren();
+        record.results.forEach(result => {
+            const tr = document.createElement("tr");
+            [result.item, result.time + " s", result.score + " / 2",
+                result.correct ? "Correcte" : "Incorrecte"].forEach(value => {
+                const td = document.createElement("td");
+                td.textContent = value;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    async importBackup(file) {
+        if (!file) return;
+        try {
+            const parsed = JSON.parse(await file.text());
+            const incoming = Array.isArray(parsed) ? parsed : parsed.records;
+            if (!Array.isArray(incoming) || !incoming.every(r =>
+                r && typeof r.id === "string" && r.participant && Array.isArray(r.results) && r.completed === true))
+                throw new Error("Format no vàlid");
+            const byId = new Map(this.getSaved().map(r => [r.id, r]));
+            incoming.forEach(r => byId.set(r.id, r));
+            if (this.persist(this.storageKey, [...byId.values()])) this.showHistory();
+        } catch(e) { alert("No s'ha pogut importar: comprova que és una còpia de resultats d'aquesta app."); }
+        document.getElementById("import-file").value = "";
+    }
+
+    initEvents() {
+
+        document.getElementById("btn-home").addEventListener("click", () => this.home());
+        document.getElementById("search-participant").addEventListener("input", () => this.renderHistory());
+        document.getElementById("btn-history").addEventListener("click", () => this.showHistory());
+        document.getElementById("btn-history-back").addEventListener("click", () => this.home());
+        document.getElementById("btn-resume").addEventListener("click", () => this.resume());
+        document.getElementById("btn-export-all").addEventListener("click", () =>
+            this.downloadRecord({format:"MRT3D-backup-v2", records:this.getSaved()}, "MRT_3D_copia_tots_resultats.json"));
+        document.getElementById("import-file").addEventListener("change", e => this.importBackup(e.target.files[0]));
+
+        document.getElementById("btn-consent")
+            .addEventListener("click", () => {
+                this.consentGiven = true;
+                document.getElementById("view-intro").classList.add("hidden");
+                document.getElementById("view-form").classList.remove("hidden");
+            });
+
+        document.getElementById("participant-form")
+            .addEventListener("submit", e => {
+
+                e.preventDefault();
+
+                const code = document.getElementById("participant-code").value.trim();
+                if (!/^[0-9]{4}$/.test(code) || !this.consentGiven) {
+                    const errorBox = document.getElementById("form-error");
+                    errorBox.textContent = "Introdueix un codi de participant de quatre dígits i accepta la informació inicial.";
+                    errorBox.style.display = "block";
+                    return;
+                }
+
+                this.participant = {
+                    code: code,
+                    name: document.getElementById("name").value,
+                    dob: document.getElementById("dob").value,
+                    handedness: document.getElementById("handedness").value,
+                    gender: document.getElementById("gender").value
+                };
+
+                try {
+
+                    this.start();
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    const errorBox = document.getElementById("form-error");
+
+                    errorBox.textContent =
+                        "No s'ha pogut iniciar la prova 3D. Comprova que el navegador permeti WebGL i que hi hagi connexió a Internet.";
+
+                    errorBox.style.display = "block";
+
+                }
+
+            });
+
+
+        document.getElementById("btn-confirm")
+            .addEventListener("click", () => this.submit());
+
+
+        document.getElementById("download-button")
+            .addEventListener("click", () => this.download());
+
+    }
+
+
+    // =================================================
+    // INICIAR PROVA
+    // =================================================
+
+    start() {
+        this.sessionId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(36).slice(2));
+        this.currentTrial = 0;
+        this.results = [];
+        this.trials = [];
+        this.generateTrials();
+        if (!this.saveProgress()) throw new Error("No es pot iniciar sense desament local");
+
+        document.getElementById("form-error").style.display = "none";
+
+        document.getElementById("view-form").classList.add("hidden");
+
+        document.getElementById("view-task").classList.remove("hidden");
+
+        this.createOptionCards();
+
+        this.loadTrial();
+
+    }
+
+
+    // =================================================
+    // CREAR LES QUATRE TARGETES
+    // =================================================
+
+    createOptionCards() {
+
+        const container = document.getElementById("options-container");
+
+        container.innerHTML = "";
+
+        this.optionCards = [];
+
+        for (let index = 0; index < 4; index++) {
+
+            const card = document.createElement("div");
+
+            card.className = "option-card";
+
+            card.innerHTML = `
+                <div class="option-id">${index + 1}</div>
+                <div class="canvas-container"></div>
+            `;
+
+            card.addEventListener("click", () => {
+                this.toggle(index, card);
+            });
+
+            container.appendChild(card);
+
+            this.optionCards.push(card);
+
+        }
+
+    }
+
+
+    // =================================================
+    // DIBUIXAR LA FIGURA OBJECTIU AMB REINTENTS
+    // =================================================
+
+    drawTarget(trial, trialNumber, attempt = 0) {
+
+        if (this.currentTrial !== trialNumber) {
+            return;
+        }
+
+        const targetContainer =
+            document.getElementById("target-canvas-box");
+
+        try {
+
+            render3DFigure(
+                targetContainer,
+                trial.shapeId,
+                trial.targetRotation,
+                false
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "No s'ha pogut dibuixar la figura objectiu. Intent:",
+                attempt + 1,
+                error
+            );
+
+            if (attempt < 4) {
+
+                setTimeout(() => {
+
+                    this.drawTarget(
+                        trial,
+                        trialNumber,
+                        attempt + 1
+                    );
+
+                }, 150 * (attempt + 1));
+
+            } else {
+
+                console.error(
+                    "No s'ha pogut carregar la figura objectiu després de diversos intents."
+                );
+
+            }
+
+        }
+
+    }
+
+
+    // =================================================
+    // CARREGAR ÍTEM
+    // =================================================
+
+    loadTrial() {
+
+        this.selected = [];
+
+        const trial = this.trials[this.currentTrial];
+
+        const trialNumber = this.currentTrial;
+
+        document.getElementById("current-trial").textContent =
+            this.currentTrial + 1;
+
+        document.getElementById("btn-confirm").disabled = true;
+
+        const targetContainer =
+            document.getElementById("target-canvas-box");
+
+        // Netejar seleccions anteriors.
+        this.optionCards.forEach(card => {
+            card.classList.remove("selected");
+        });
+
+        // Dibuixar les quatre opcions.
+        trial.options.forEach((option, index) => {
+
+            const card = this.optionCards[index];
+
+            render3DFigure(
+                card.querySelector(".canvas-container"),
+                option.shapeId,
+                option.rotation,
+                option.mirrored
+            );
+
+        });
+
+        // No ocultar el canvas reutilitzat: si es marca com a hidden,
+        // els ítems següents es dibuixen però continuen invisibles.
+        // Dibuixar la figura objectiu quan el navegador
+        // ja hagi actualitzat les dimensions de la pantalla.
+        requestAnimationFrame(() => {
+
+            requestAnimationFrame(() => {
+
+                this.drawTarget(
+                    trial,
+                    trialNumber
+                );
+
+            });
+
+        });
+
+        this.startTime = performance.now();
+
+    }
+
+
+    // =================================================
+    // SELECCIONAR OPCIONS
+    // =================================================
+
+    toggle(index, card) {
+
+        const position = this.selected.indexOf(index);
+
+        if (position !== -1) {
+
+            this.selected.splice(position, 1);
+
+            card.classList.remove("selected");
+
+        } else if (this.selected.length < 2) {
+
+            this.selected.push(index);
+
+            card.classList.add("selected");
+
+        }
+
+        document.getElementById("btn-confirm").disabled =
+            this.selected.length !== 2;
+
+    }
+
+
+    // =================================================
+    // CONFIRMAR RESPOSTA
+    // =================================================
+
+    submit() {
+
+        const trial = this.trials[this.currentTrial];
+
+        const elapsed =
+            (performance.now() - this.startTime) / 1000;
+
+        let score = 0;
+
+        this.selected.forEach(index => {
+
+            if (trial.options[index].correct) {
+                score++;
+            }
+
+        });
+
+        const fullyCorrect = score === 2;
+
+        this.results.push({
+
+            item: this.currentTrial + 1,
+            time: elapsed.toFixed(2),
+            score: score,
+            correct: fullyCorrect
+
+        });
+
+        this.currentTrial++;
+        // Guardar cada resposta abans de passar a l'ítem següent.
+        if (!this.saveProgress()) {
+            this.currentTrial--;
+            this.results.pop();
+            return;
+        }
+
+        if (this.currentTrial < this.totalItems) {
+
+            this.loadTrial();
+
+        } else {
+
+            this.showResults();
+
+        }
+
+    }
+
+
+    // =================================================
+    // RESULTATS
+    // =================================================
+
+    showResults() {
+        this.viewedRecord = null;
+        const saved = this.saveCompleted();
+        document.getElementById("save-status").textContent = saved
+            ? "Resultats desats correctament en aquest navegador."
+            : "ATENCIÓ: no s'ha pogut desar localment. Descarrega els resultats abans de sortir.";
+
+        document.getElementById("view-task").classList.add("hidden");
+
+        document.getElementById("view-results").classList.remove("hidden");
+
+        document.getElementById("participant-summary").textContent =
+            "Participant: " + this.participant.name + " · Codi: " + this.participant.code;
+
+        const total = this.results.filter(r => r.correct).length;
+
+        document.getElementById("final-score-text").textContent =
+            "Ítems completament correctes: " +
+            total +
+            " / " +
+            this.totalItems;
+
+        const tbody = document.getElementById("results-tbody");
+
+        tbody.innerHTML = "";
+
+        this.results.forEach(result => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${result.item}</td>
+                <td>${result.time} s</td>
+                <td>${result.score} / 2</td>
+                <td>${result.correct ? "Correcte" : "Incorrecte"}</td>
+            `;
+
+            tbody.appendChild(row);
+
+        });
+
+    }
+
+
+    // =================================================
+    // DESCARREGAR RESULTATS
+    // =================================================
+
+    download() {
+        const record = this.viewedRecord || this.currentData();
+        this.downloadRecord(record,
+            "resultats_MRT_3D_" + (record.participant?.code || "sense_codi") +
+            "_" + record.id + ".json");
+    }
+
+}
+
+
+// =====================================================
+// INICI DE L'APLICACIÓ
+// =====================================================
+
+let app;
+
+try {
+
+    if (!window.THREE) {
+        throw new Error("Three.js no s'ha pogut carregar.");
+    }
+
+    app = new MentalRotationApp();
+
+} catch (error) {
+
+    console.error("Error inicialitzant la prova:", error);
+
+    const errorBox = document.getElementById("form-error");
+
+    errorBox.textContent =
+        "Hi ha hagut un error en preparar la prova. Recarrega la pàgina i comprova la connexió a Internet.";
+
+    errorBox.style.display = "block";
+
+}
+
+</script>
+
+</body>
+</html>
